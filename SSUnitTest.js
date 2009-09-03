@@ -893,11 +893,11 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     });
     
     var testData = {
-      testName: testResult.get('name'),
-      status: (testResult.get('success') && 'passed') || 'failed',
-      statusColor: (testResult.get('success') && 'green') || 'red',
-      doc: testResult.get('doc') || '',
-      message: testResult.get('message') || ''
+      testName: testResult.name,
+      status: (testResult.success && 'passed') || 'failed',
+      statusColor: (testResult.success && 'green') || 'red',
+      doc: testResult.doc || '',
+      message: testResult.message || ''
     };
     
     resultDiv.set('html', ('<span><b>{testName}:</b></span> <span>{doc}</span> <span style="color:{statusColor};">{status}</span> <span style="color:{statusColor}">{message}</span> ...').substitute(testData));
@@ -912,9 +912,9 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
   
   totals: function(testResult) {
     var totals = {
-      count: testResult.get('count'),
-      passed: testResult.get('passed'),
-      failed: testResult.get('failed')
+      count: testResult.count,
+      passed: testResult.passed,
+      failed: testResult.failed
     };
     
     var totalsDiv = new Element('div', {
@@ -974,25 +974,21 @@ SSUnitTest.TestSuite = new Class({
       failed: 0
     });
     
-    suiteResults.set('tests', $H());
+    suiteResults.tests = $H();
     
     this.tests().each(function(aTest) {
       var results = aTest.getResults();
-      
-      // add this results to the master
-      suiteResults.get('tests').set(aTest.name, results);
-      
-      // accumulate
-      suiteResults.set('count', suiteResults.get('count') + results.get('count'));
-      suiteResults.set('passed', suiteResults.get('passed') + results.get('passed'));
-      suiteResults.set('failed', suiteResults.get('failed') + results.get('failed'));
+      suiteResults.tests[aTest.name] = results;
+      suiteResults.count = suiteResults.count + results.count;
+      suiteResults.passed = suiteResults.passed + results.passed;
+      suiteResults.failed = suiteResults.failed + results.failed;
     });
     
     // only if everything passed do we set success to true
     
-    if(suiteResults.get('failed') == 0)
+    if(suiteResults.failed == 0)
     {
-      suiteResults.set('success', true);
+      suiteResults.success = true;
     }
     
     return suiteResults;
