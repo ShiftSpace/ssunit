@@ -781,12 +781,14 @@ SSUnitTest.ResultFormatter = new Class({
   Implements: [Options],
   name: 'SSUnitTest.ResultFormatter',
   
-  defaults: {
-    supportsInteractive: false
+  defaults: function() {
+    return {
+      supportsInteractive: false
+    }
   },
   
   initialize: function(options) {
-    this.setOptions(this.defaults, options);
+    this.setOptions(this.defaults(), options);
   },
   
   asString: function(testResult) {
@@ -839,8 +841,7 @@ SSUnitTest.ResultFormatter.Console = new Class({
   Extends: SSUnitTest.ResultFormatter,
   name: 'SSUnitTest.ResultFormatter.Console',
   
-  output: function(testResult, depth)
-  {
+  output: function(testResult, depth) {
     console.log("  ".repeat(depth) + this.asString(testResult));
     // call parent, required for relaying depth of test
     this.parent(testResult, depth);
@@ -869,26 +870,21 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
   Extends: SSUnitTest.ResultFormatter,
   name: 'SSUnitTest.ResultFormatter.BasicDOM',
   
-  initialize: function(_container)
-  {
-    this.__container = ($type(_container) == 'string') ? $(_container) : _container;
+  defaults: function() {
+    return $merge(this.parent(), {
+      supportsInteractive: true
+    });
   },
   
-  
-  setContainer: function(aContainer)
-  {
-    this.__container = aContainer;
+  initialize: function(container) {
+    this.parent(options);
+    this.__container = ($type(this.options.container) == 'string') ? $(this.options.container) : this.options.container;
   },
   
-  
-  container: function()
-  {
-    return this.__container;
-  },
-  
+  setContainer: function(aContainer) { this.__container = aContainer; },
+  container: function() { return this.__container; },
 
-  format: function(testResult, depth)
-  {
+  format: function(testResult, depth) {
     var resultDiv = new Element('div', {
       'class': 'SSUnitTestResult'
     });
@@ -909,17 +905,12 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     return resultDiv;
   },
 
-
-  output: function(testResult, depth)
-  {
+  output: function(testResult, depth) {
     this.container().grab(this.format(testResult, depth));
-    // call parent
     this.parent(testResult, depth);
   },
   
-  
-  totals: function(testResult)
-  {
+  totals: function(testResult) {
     var totals = {
       count: testResult.get('count'),
       passed: testResult.get('passed'),
@@ -937,7 +928,6 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     
     this.container().grab(totalsDiv);
   }
-  
 });
 
 
