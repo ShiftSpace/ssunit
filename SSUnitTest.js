@@ -110,7 +110,7 @@ SSUnit.TestIterator = new Class({
     Parameters:
       _aTest - SSUnitTest.TestSuite/TestCase instance.
   */
-  addTest: function(aTest)
+  addTest: function(_aTest)
   {
     aTest = ($type(aTest) == 'class') ? new aTest({autoCollect:false}) : aTest;
     this.tests().push(aTest);
@@ -160,6 +160,7 @@ SSUnit.TestIterator = new Class({
   */
   run: function()
   {
+    this.fireEvent('onStart', {type:this.type(), name:this.name, ref:this});
     var first = this.runningTests().shift();
     if(first != null) 
     {
@@ -247,6 +248,24 @@ var SSUnitTestClass = new Class({
   finish: function()
   {
     this.outputResults();
+  },
+  
+  
+  onStart: function(aTest)
+  {
+    if(this.isInteractive())
+    {
+      //console.log('-onStart ' + aTest.type + ' ' + aTest.name);
+    }
+  },
+  
+  
+  onComplete: function(aTest)
+  {
+    if(this.isInteractive())
+    {
+      //console.log('-onComplete ' + aTest.type + ' ' + aTest.name);
+    }
   },
   
   
@@ -376,6 +395,7 @@ SSUnitTest.TestCase = new Class({
   
   getResults: function()
   {
+    // returns a SSUnitTest.TestResult object
     return this.__results;
   },
 
@@ -385,6 +405,9 @@ SSUnitTest.TestCase = new Class({
   */
   run: function()
   {
+    this.fireEvent('onStart', {type:'testcase', name:this.name, ref:this});
+    
+    // collect all the tests and build metadata
     this.__collectTests__();
     this.__runTests__();
   },
