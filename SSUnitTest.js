@@ -9,21 +9,76 @@
 // = Utilities =
 // ==============
 
-Array.implement({
-  copy: function() {
-    var results = [];
-    for(var i = 0, l = this.length; i < l; i++) results[i] = this[i];
-    return results;
-  }
-});
+if(!Array.first) {
+  Array.implement({
+    first: function() { return this[0]; },
+    rest: function(n) { return this.slice(n || 1, this.length); },
+    drop: function(n) { return this.slice(0, this.length-n); },
+    tail: function(n) { return this.slice(n, this.length); },
+    head: function(n) { return this.slice(0, n) },
+    isEmpty: function() { return this.length == 0; },
+    select: function(test) { for(var i = 0; i < this.length; i++) if(test(this[i])) return this[i]; return; },
+    zipmap: function(vs) {
+      var result = {};
+      this.each(function(v, i) { result[this[i]] = vs[i]; }, this);
+      return result;
+    },
+    partition: function(n) {
+      if(this.length % n != 0) throw Error("The length of this array is not a multiple of " + n);
+      var result = [];
+      var ary = this;
+      while(ary.length > 0) {
+        var sub = ary.head(n);
+        result.push(sub);
+        ary = ary.tail(n);
+      }
+      return result;
+    }
+  });
+}
 
-String.implement({
-  repeat: function(times) {
-    var result = "";
-    for(var i = 0; i < times; i++) result += this;
-    return result;
-  }
-});
+if(!Array.copy) {
+  Array.implement({
+    copy: function() {
+      var results = [];
+      for(var i = 0, l = this.length; i < l; i++) results[i] = this[i];
+      return results;
+    }
+  });
+}
+
+if(!Function.comp) {
+  Function.implement({
+    comp: function() {
+      var fns = $A(arguments), self = this;
+      return function() {
+        var temp = $A(fns), args = $A(arguments), result = (self && $type(self) == 'function') ? self.apply(this, args) : null, fn;
+        while(fn = temp.shift()) result = fn.apply(null, (result && [result]) || args);
+        return result;
+      }
+    }
+  })
+}
+
+if(!String.repeat) {
+  String.implement({
+    repeat: function(times) {
+      var result = "";
+      for(var i = 0; i < times; i++) result += this;
+      return result;
+    }
+  });
+}
+
+if(typeof $get == 'undefined') {
+  function $get(first, prop) {
+    var args = $A(arguments), rest = args.drop(2), next;
+    if(rest.length == 0) return first[prop];
+    if(['object', 'array'].contains($type(first))) next = first[prop];
+    if($type(next) == 'function') next = first[prop]();
+    return (next == null) ? null : $get.apply(null, [next].concat(rest));
+  };
+}
 
 // =============
 // = NameSpace =
