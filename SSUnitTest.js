@@ -108,9 +108,9 @@ SSUnit.TestIterator = new Class({
       Adds a test to the internal array
       
     Parameters:
-      _aTest - SSUnitTest.TestSuite/TestCase instance.
+      aTest - SSUnitTest.TestSuite/TestCase instance.
   */
-  addTest: function(_aTest)
+  addTest: function(aTest)
   {
     aTest = ($type(aTest) == 'class') ? new aTest({autoCollect:false}) : aTest;
     this.tests().push(aTest);
@@ -147,10 +147,7 @@ SSUnit.TestIterator = new Class({
   
   runningTests: function()
   {
-    if(!this.__runningTests)
-    {
-      this.__runningTests = this.tests().copy();
-    }
+    if(!this.__runningTests) this.__runningTests = this.tests().copy();
     return this.__runningTests;
   }, 
   
@@ -224,23 +221,11 @@ var SSUnitTestClass = new Class({
   },
   
   
-  main: function(options)
-  {
-    // set a formatter
-    if(options != null)
-    {
-      if(options.formatter)
-      {
-        this.setFormatter(options.formatter);
-      }
-
-      // output results on the fly don't wait till the end
-      if(options.interactive)
-      {
-        this.setInteractive(options.interactive);
-      }
+  main: function(options) {
+    if(options != null) {
+      if(options.formatter) this.setFormatter(options.formatter);
+      if(options.interactive) this.setInteractive(options.interactive);
     }
-    
     this.run();
   },
   
@@ -793,28 +778,29 @@ SSUnitTest.TestCase = new Class({
 
 SSUnitTest.ResultFormatter = new Class({
   
-  initialize: function() {},
+  Implements: [Options],
   name: 'SSUnitTest.ResultFormatter',
   
-  asString: function(testResult) 
-  {
+  defaults: {
+    supportsInteractive: false
+  },
+  
+  initialize: function(options) {
+    this.setOptions(this.defaults, options);
+  },
+  
+  asString: function(testResult) {
     var resultString = [];
-    resultString.push(testResult.get('name') + ":");
-    resultString.push(testResult.get('doc') || '');
-    resultString.push((testResult.get('success') && "PASS") || "FAIL");
-    resultString.push(testResult.get('message') || "");
-    if(testResult.get('error'))
-    {
-      resultString.push(", error:" + testResult.get('error'));
-    }
+    resultString.push(testResult.name + ":");
+    resultString.push(testResult.doc || '');
+    resultString.push((testResult.success && "PASS") || "FAIL");
+    resultString.push(testResult.message || "");
+    if(testResult['error']) resultString.push(", error:" + testResult['error']);
     resultString.push("...");
     return resultString.join(" ");
   },
     
-  format: function(aResult, _depth) 
-  {
-    
-  },
+  format: function(aResult, depth) {},
   
   /*
     Function: output
@@ -825,14 +811,11 @@ SSUnitTest.ResultFormatter = new Class({
       aResult - a Hash object.  You should get one from a test that has been run.
       _depth - used for formatting.
   */
-  output: function(aResult, _depth)
-  {
+  output: function(aResult, depth) {
     // get the depth
-    var depth = (_depth != null) ? _depth : 0;
+    depth = (depth != null) ? depth : 0;
     var subResults = aResult.get('tests');
-    
-    if(subResults && subResults.getLength() > 0)
-    {
+    if(subResults && subResults.getLength() > 0) {
       subResults.each(function(subResult, subResultName) {
         this.output(subResult, depth+1);
       }.bind(this));
@@ -843,10 +826,7 @@ SSUnitTest.ResultFormatter = new Class({
     Function: totals
       Reports the totals for a test, does not recurse on a test result.
   */
-  totals: function(aResult)
-  {
-    
-  }
+  totals: function(aResult) {}
   
 });
 
