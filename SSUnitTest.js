@@ -56,8 +56,8 @@ SSUnit.Base = new Class({
     return this.__docs;
   },
   
-  __setDocForFunction__: function(fn, doc) { this.__getDocs__().set(fn.ssname, doc); },
-  __docForFunction__: function(fnName) { return this.__getDocs__().get(fnName); },
+  __setDocForFunction__: function(fn, doc) { this.__getDocs__()[fn.ssname] = doc; },
+  __docForFunction__: function(fnName) { return this.__getDocs__()[fnName]; },
   __nameForFunction__: function(fn) { return fn.ssname; },
   __setNameForFunction__: function(fn, name) { fn.ssname = name; }
 
@@ -485,7 +485,7 @@ SSUnitTest.TestCase = new Class({
   
   __runTests__: function() {
     this.__tests.each(function(testData, testName) {
-      this.__onStart__(testData.get('function'));
+      this.__onStart__(testData['function']);
       var failed = false;
       
       try {
@@ -496,17 +496,17 @@ SSUnitTest.TestCase = new Class({
       }
       
       try {
-        testData.get('function')();
+        testData['function']();
       }
       catch(err) {
-        var message = testData.get('message');
+        var message = testData.message;
         var newmessage = "Uncaught exception: " + SSDescribeException(err);
         if(message) {
           message += ", " + newmessage;
         } else {
           message = newmessage;
         }
-        testData.set('message', message);
+        testData.message = message;
         failed = true;
       }
       
@@ -522,7 +522,7 @@ SSUnitTest.TestCase = new Class({
       catch(err) {
         throw new SSUnitTest.Error(err, "Uncaught exception in tearDwon.");
       }
-      if(!testData.get('async')) this.__onComplete__(testData);
+      if(!testData.async) this.__onComplete__(testData);
     }.bind(this));
   },
   
@@ -627,7 +627,7 @@ SSUnitTest.ResultFormatter = new Class({
   output: function(aResult, depth) {
     // get the depth
     depth = (depth != null) ? depth : 0;
-    var subResults = aResult.get('tests');
+    var subResults = aResult.tests;
     if(subResults && subResults.getLength() > 0) {
       subResults.each(function(subResult, subResultName) {
         this.output(subResult, depth+1);
@@ -660,9 +660,9 @@ SSUnitTest.ResultFormatter.Console = new Class({
   
   totals: function(testResult) {
     var totals = {
-      count: testResult.get('count'),
-      passed: testResult.get('passed'),
-      failed: testResult.get('failed'),
+      count: testResult.count,
+      passed: testResult.passed,
+      failed: testResult.failed,
     };
     
     console.log('------------------------------------------');
