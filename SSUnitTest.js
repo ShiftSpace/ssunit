@@ -10,8 +10,7 @@
 // ==============
 
 Array.implement({
-  copy: function()
-  {
+  copy: function() {
     var results = [];
     for(var i = 0, l = this.length; i < l; i++) results[i] = this[i];
     return results;
@@ -19,8 +18,7 @@ Array.implement({
 });
 
 String.implement({
-  repeat: function(times) 
-  {
+  repeat: function(times) {
     var result = "";
     for(var i = 0; i < times; i++) result += this;
     return result;
@@ -47,20 +45,16 @@ SSUnit.Base = new Class({
       Sets the documentation for a fixture.  This takes effect at the test run time.
       This function should be run before anything else in the fixture.
   */
-  doc: function(string)
-  {
+  doc: function(string) {
     var docs = this.__getDocs__();
     var caller = this.doc.caller;
     this.__setDocForFunction__(caller, string);
   },
   
-  
-  __getDocs__: function()
-  {
+  __getDocs__: function() {
     if(!this.__docs) this.__docs = $H();
     return this.__docs;
   },
-  
   
   __setDocForFunction__: function(fn, doc) { this.__getDocs__().set(fn.ssname, doc); },
   __docForFunction__: function(fnName) { return this.__getDocs__().get(fnName); },
@@ -87,8 +81,7 @@ SSUnit.TestIterator = new Class({
     Function: tests
       Returns all collected tests.
   */
-  tests: function()
-  {
+  tests: function() {
     if(!this.__tests) this.setTests([]);
     return this.__tests;
   },
@@ -97,8 +90,7 @@ SSUnit.TestIterator = new Class({
     Functions: reset
       Resets the internal array of collected tests.
   */
-  reset: function()
-  {
+  reset: function() {
     this.setTests([]);
     delete this.__runningTests;
   },
@@ -110,40 +102,27 @@ SSUnit.TestIterator = new Class({
     Parameters:
       aTest - SSUnitTest.TestSuite/TestCase instance.
   */
-  addTest: function(aTest)
-  {
+  addTest: function(aTest) {
     aTest = ($type(aTest) == 'class') ? new aTest({autoCollect:false}) : aTest;
     this.tests().push(aTest);
   },
   
-  
-  addTests: function(tests)
-  {
-    tests.each(this.addTests.bind(this));
-  },
-  
+  addTests: function(tests) { tests.each(this.addTests.bind(this)); },
 
-  runTest: function(aTest)
-  {
+  runTest: function(aTest) {
     aTest.addEvent('onComplete', this.nextTest.bind(this));
     aTest.run();
   },
-  
 
-  nextTest: function(aTest)
-  {
+  nextTest: function(aTest) {
     var nextTest = this.runningTests().shift();
-    if(nextTest)
-    {
+    if(nextTest) {
       this.runTest(nextTest);
-    }
-    else
-    {
+    } else {
       if(this.finish) this.finish();
       this.fireEvent('onComplete', {type:this.type(), name:this.name, ref:this});
     }
   },
-  
   
   runningTests: function()
   {
@@ -155,20 +134,15 @@ SSUnit.TestIterator = new Class({
     Function: run
       Runs all of the tests in the internal tests array.
   */
-  run: function()
-  {
+  run: function() {
     this.fireEvent('onStart', {type:this.type(), name:this.name, ref:this});
     var first = this.runningTests().shift();
-    if(first != null) 
-    {
+    if(first != null) {
       this.runTest(first);
-    }
-    else
-    {
+    } else {
       throw new SSUnitTest.Error(new Error(), "No tests to run");
     }
   }
-  
 });
 
 
@@ -181,45 +155,22 @@ var SSUnitTestClass = new Class({
   Implements: [Events, Options, SSUnit.TestIterator], 
   name: "SSUnitTest",
 
-  defaults:
-  {
+  defaults: {
     formatter: null,
     interactive: false
   },
 
-
-  initialize: function(options)
-  {
+  initialize: function(options) {
     this.setOptions(this.defaults, options)
     this.setInteractive(this.options.interactive);
     this.setFormatter(this.options.formatter);
     this.reset();
   },
-  
 
-  setInteractive: function(value)
-  {
-    this.__interactive = value;
-  },
-  
-
-  isInteractive: function()
-  {
-    return this.__interactive;
-  },
-  
-
-  setFormatter: function(formatter)
-  {
-    this.__formatter = formatter;
-  },
-  
-
-  formatter: function()
-  {
-    return this.__formatter;
-  },
-  
+  setInteractive: function(value) { this.__interactive = value; },
+  isInteractive: function() { return this.__interactive; },
+  setFormatter: function(formatter) { this.__formatter = formatter; },
+  formatter: function() { return this.__formatter; },
   
   main: function(options) {
     if(options != null) {
@@ -229,35 +180,22 @@ var SSUnitTestClass = new Class({
     this.run();
   },
   
+  finish: function() { this.outputResults(); },
   
-  finish: function()
-  {
-    this.outputResults();
-  },
-  
-  
-  onStart: function(aTest)
-  {
-    if(this.isInteractive())
-    {
+  onStart: function(aTest) {
+    if(this.isInteractive()) {
       //console.log('-onStart ' + aTest.type + ' ' + aTest.name);
     }
   },
   
-  
-  onComplete: function(aTest)
-  {
-    if(this.isInteractive())
-    {
+  onComplete: function(aTest) {
+    if(this.isInteractive()) {
       //console.log('-onComplete ' + aTest.type + ' ' + aTest.name);
     }
   },
   
-  
-  outputResults: function(_formatter)
-  {
-    var formatter = (!_formatter) ? (this.formatter() || new SSUnitTest.ResultFormatter.Console()) : _formatter;
-    
+  outputResults: function(formatter) {
+    formatter = (!formatter) ? (this.formatter() || new SSUnitTest.ResultFormatter.Console()) : formatter;
     // throw an error if no formatter
     this.tests().each(function(aTest) {
       var results = aTest.getResults();
@@ -265,7 +203,6 @@ var SSUnitTestClass = new Class({
       formatter.totals(results);
     });
   }
-  
 });
 var SSUnitTest = new SSUnitTestClass()
 
@@ -276,8 +213,7 @@ var SSUnitTest = new SSUnitTestClass()
 SSUnitTest.Error = new Class({
   Extends: SSException,
   Implements: SSExceptionPrinter,
-  initialize: function(_error, message)
-  {
+  initialize: function(_error, message) {
     this.parent(_error);
     this.setMessage(message);
   },
@@ -323,38 +259,32 @@ SSUnitTest.TestCase = new Class({
   Extends: SSUnit.Base,
   name: 'SSUnitTest.TestCase',
   
-  defaults:
-  {
+  defaults: {
     dummy: false,
     autoCollect: true
   },
   
-  initialize: function(options)
-  {
+  initialize: function(options) {
     this.setOptions(this.defaults, options);
     
-    if(!this.options.dummy)
-    {
+    if(!this.options.dummy) {
       //console.log('Creating test case ' + this.name);
     }
     
     this.__tests = $H();
     this.__results = $H();
-    this.__results.set('count', 0);
-    this.__results.set('passed', 0);
-    this.__results.set('failed', 0);
-    this.__results.set('tests', $H());
+    this.__results.count = 0;
+    this.__results.passed = 0;
+    this.__results.failed = 0;
+    this.__results.tests = $H();
     this.__runningTests = [];
     
     // to skip any properties defined on base class
     // wish MooTools supported class reflection!
-    if(!this.options.dummy) 
-    {
+    if(!this.options.dummy) {
       this.__dummy = new SSUnitTest.TestCase({dummy:true});
-      
       // auto collect into the SSUnitTest singleton
-      if(this.options.autoCollect)
-      {
+      if(this.options.autoCollect) {
         // add this instance to SSUnitTest
         SSUnitTest.addTest(this);
       }
@@ -365,21 +295,15 @@ SSUnitTest.TestCase = new Class({
     Function: setup (abstract)
       Called before each test.  Do any initialization here.
   */
-  setup: function() 
-  {
-  },
+  setup: function() {},
   
   /*
     Function: tearDown (abstract)
       Called after each test. Do any cleanup here.
   */
-  tearDown: function() 
-  {
-  },
+  tearDown: function() {},
   
-  
-  getResults: function()
-  {
+  getResults: function() {
     // returns a SSUnitTest.TestResult object
     return this.__results;
   },
@@ -388,15 +312,12 @@ SSUnitTest.TestCase = new Class({
     Function: run
       Runs the teset case.
   */
-  run: function()
-  {
+  run: function() {
     this.fireEvent('onStart', {type:'testcase', name:this.name, ref:this});
-    
     // collect all the tests and build metadata
     this.__collectTests__();
     this.__runTests__();
   },
-  
   
   /*
     Function: assertThrows
@@ -416,14 +337,11 @@ SSUnitTest.TestCase = new Class({
       }
       (end)
   */
-  assertThrows: function(exceptionType, fn, args, hook)
-  {
-    if(arguments.length < 2)
-    {
+  assertThrows: function(exceptionType, fn, args, hook) {
+    if(arguments.length < 2) {
       throw new SSUnitTest.AssertThrowsError(new Error(), 'assertThrows expects at least 2 arguments.');
     }
-    if(exceptionType == null)
-    {
+    if(exceptionType == null) {
       throw new SSUnitTest.AssertThrowsError(new Error(), 'assertThrows exception type is null.');
     }
     
@@ -431,19 +349,14 @@ SSUnitTest.TestCase = new Class({
     var testArgs = $splat(args);
     var caller = $pick(hook, this.assertThrows.caller);
     
-    try
-    {
+    try {
       fn.apply(null, testArgs);
       this.__setTestFail__(caller);
     }
-    catch(err)
-    {
-      if(err instanceof exceptionType)
-      {
+    catch(err) {
+      if(err instanceof exceptionType) {
         this.__setTestSuccess__(caller);
-      }
-      else
-      {
+      } else {
         this.__setTestFail__(caller);
       }
     }
@@ -465,35 +378,22 @@ SSUnitTest.TestCase = new Class({
       }
       (end)
   */
-  assert: function(value, hook)
-  {
+  assert: function(value, hook) {
     if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assert expects 1 arguments.');
-
     var caller = $pick(hook, this.assert.caller);
-    
-    if(value == true)
-    {
+    if(value == true) {
       this.__setTestSuccess__(caller);
-    }
-    else
-    {
+    } else {
       this.__setTestFail__(caller);
     }
   },
   
-  
-  assertFalse: function(value, hook)
-  {
+  assertFalse: function(value, hook) {
     if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assertFalse expects 1 arguments.');
-
     var caller = $pick(hook, this.assertFalse.caller);
-    
-    if(value == false)
-    {
+    if(value == false) {
       this.__setTestSuccess__(caller);
-    }
-    else
-    {
+    } else {
       this.__setTestFail__(caller);
     }
   },
@@ -520,18 +420,12 @@ SSUnitTest.TestCase = new Class({
     See Also:
         assertNotEqual
   */
-  assertEqual: function(a, b, hook)
-  {
+  assertEqual: function(a, b, hook) {
     if(arguments.length < 2) throw new SSUnitTest.AssertEqualError(new Error(), 'assertEqual expects 2 arguments.');
-
     var caller = $pick(hook, this.assertEqual.caller);
-    
-    if(a == b)
-    {
+    if(a == b) {
       this.__setTestSuccess__(caller);
-    }
-    else
-    {
+    } else {
       this.__setTestFail__(caller);
     }
   },
@@ -558,22 +452,15 @@ SSUnitTest.TestCase = new Class({
     See Also:
         assertEqual
   */
-  assertNotEqual: function(a, b, hook)
-  {
+  assertNotEqual: function(a, b, hook) {
     if(arguments.length < 2) throw new SSUnitTest.AssertNotEqualError(new Error(), 'assertNotEqual expects 2 arguments.');
-
     var caller = $pick(hook, this.assertNotEqual.caller);
-    
-    if(a != b)
-    {
+    if(a != b) {
       this.__setTestSuccess__(caller);
-    }
-    else
-    {
+    } else {
       this.__setTestFail__(caller);
     }
   },
-  
   
   __collectTests__: function() {
     // collect all object properties that have 'test' as the first four characters
