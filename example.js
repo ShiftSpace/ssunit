@@ -13,7 +13,7 @@ var TestTest = new Class({
   
   testSubtract: function() {
     this.doc("subtract two numbers")
-    this.assertEqual(3 - 1, 2);
+    this.assertEqual(3 - 1, 1);
   }
 });
 

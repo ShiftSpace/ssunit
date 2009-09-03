@@ -732,20 +732,10 @@ SSUnitTest.TestCase = new Class({
   },
   
   
-  endAsync: function(ref)
-  {
-    this.__onComplete__(this.__dataForTest__(ref));
-  },
+  endAsync: function(ref) { this.__onComplete__(this.__dataForTest__(ref)); },
+  __setTestFail__: function(aTest) { this.__dataForTest__(aTest).success = false; },
   
-  
-  __setTestFail__: function(aTest)
-  {
-    this.__dataForTest__(aTest).set('success', false);
-  },
-  
-  
-  __collectResults__: function()
-  {
+  __collectResults__: function() {
     var passed = this.__tests.getValues().filter(function(x){return x.success});
     var passedTests = passed.map(function(x){return this.__nameForFunction__(x['function'])}.bind(this));
     var failed = this.__tests.getValues().filter(function(x){return !x.success});
@@ -753,20 +743,20 @@ SSUnitTest.TestCase = new Class({
     
     // NOTE: collect data about each individual test, could just pass direct reference I think - David
     this.__tests.each(function(testData, testName) {
-      this.__results.get('tests').set(testName, $H({
+      this.__results.tests[testName] = $H({
         name: testName,
-        success: testData.get('success'),
-        doc: this.__docForFunction__(this.__nameForFunction__(testData.get('function'))),
-        message: testData.get('message') || ''
-      }));
+        success: testData.success,
+        doc: this.__docForFunction__(this.__nameForFunction__(testData.function)),
+        message: testData.message || ''
+      });
     }.bind(this));
 
     // collect test case data
-    this.__results.set('name', this.name);
-    this.__results.set('count', this.__tests.getLength());
-    this.__results.set('passed', passed.length);
-    this.__results.set('failed', failed.length);
-    this.__results.set('success', (failed.length == 0));
+    this.__results.name = this.name;
+    this.__results.count = this.__tests.getLength();
+    this.__results.passed = passed.length;
+    this.__results.failed = failed.length;
+    this.__results.success = (failed.length == 0);
   }
   
 });
@@ -847,8 +837,7 @@ SSUnitTest.ResultFormatter.Console = new Class({
     this.parent(testResult, depth);
   },
   
-  totals: function(testResult)
-  {
+  totals: function(testResult) {
     var totals = {
       count: testResult.get('count'),
       passed: testResult.get('passed'),
@@ -946,26 +935,19 @@ SSUnitTest.TestSuite = new Class({
   Implements: SSUnit.TestIterator,
   name: 'SSUnitTest.TestSuite',
   
-  defaults:
-  {
+  defaults: {
     autoCollect: true
   },
   
-  initialize: function(options)
-  {
+  initialize: function(options) {
     this.setOptions(this.defaults, options);
-    
     // add it to the singleton unless autoCollect is set to false
     // autoCollect will be false if this testsuite is embededded
     // into another testsuite
-    if(this.options.autoCollect)
-    {
-      SSUnitTest.addTest(this);
-    }
+    if(this.options.autoCollect) SSUnitTest.addTest(this);
   },
   
-  getResults: function()
-  {
+  getResults: function() {
     var suiteResults = $H({
       name: this.name,
       subtests: $H(),
@@ -973,7 +955,6 @@ SSUnitTest.TestSuite = new Class({
       passed: 0,
       failed: 0
     });
-    
     suiteResults.tests = $H();
     
     this.tests().each(function(aTest) {
@@ -985,12 +966,7 @@ SSUnitTest.TestSuite = new Class({
     });
     
     // only if everything passed do we set success to true
-    
-    if(suiteResults.failed == 0)
-    {
-      suiteResults.success = true;
-    }
-    
+    if(suiteResults.failed == 0) suiteResults.success = true;
     return suiteResults;
   }
   
