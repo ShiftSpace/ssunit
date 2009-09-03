@@ -101,8 +101,7 @@ SSUnit.Base = new Class({
       This function should be run before anything else in the fixture.
   */
   doc: function(string) {
-    var docs = this.__getDocs__();
-    var caller = this.doc.caller;
+    var docs = this.__getDocs__(), caller = this.doc.caller;
     this.__setDocForFunction__(caller, string);
   },
   
