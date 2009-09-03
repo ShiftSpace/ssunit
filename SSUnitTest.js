@@ -112,7 +112,7 @@ SSUnit.TestIterator = new Class({
   addTest: function(_aTest)
   {
     // interesting class is a type
-    var aTest = ($type(_aTest) == 'class') ? new _aTest({autocollect:false}) : _aTest;
+    var aTest = ($type(_aTest) == 'class') ? new _aTest({autoCollect:false}) : _aTest;
     
     // otherwise just add it
     this.tests().push(aTest);
@@ -345,7 +345,7 @@ SSUnitTest.TestCase = new Class({
   defaults:
   {
     dummy: false,
-    autocollect: true
+    autoCollect: true
   },
   
   initialize: function(options)
@@ -372,7 +372,7 @@ SSUnitTest.TestCase = new Class({
       this.__dummy = new SSUnitTest.TestCase({dummy:true});
       
       // auto collect into the SSUnitTest singleton
-      if(this.options.autocollect)
+      if(this.options.autoCollect)
       {
         // add this instance to SSUnitTest
         SSUnitTest.addTest(this);
@@ -985,17 +985,17 @@ SSUnitTest.TestSuite = new Class({
   
   defaults:
   {
-    autocollect: true
+    autoCollect: true
   },
   
   initialize: function(options)
   {
     this.setOptions(this.defaults, options);
     
-    // add it to the singleton unless autocollect is set to false
-    // autocollect will be false if this testsuite is embededded
+    // add it to the singleton unless autoCollect is set to false
+    // autoCollect will be false if this testsuite is embededded
     // into another testsuite
-    if(this.options.autocollect)
+    if(this.options.autoCollect)
     {
       SSUnitTest.addTest(this);
     }
