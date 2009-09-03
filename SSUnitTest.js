@@ -77,6 +77,7 @@ SSUnit.Base = new Class({
 SSUnit.TestIterator = new Class({
   
   Implements: [Events, Options],
+  name: "SSUnit.TestIterator",
   
   setType: function(type) { this.__type = type; },
   type: function() { return this.__type || 'test'; },
@@ -182,10 +183,9 @@ SSUnit.TestIterator = new Class({
 // ========================
 
 var SSUnitTestClass = new Class({
-  
-  name: "SSUnitTest",
-  
+    
   Implements: [Events, Options, SSUnit.TestIterator], 
+  name: "SSUnitTest",
 
   defaults:
   {
@@ -338,8 +338,7 @@ SSUnitTest.NoFormatter = new Class({
 
 SSUnitTest.TestCase = new Class({
   
-  Extends: SSUnit.Base,       
-  
+  Extends: SSUnit.Base,
   name: 'SSUnitTest.TestCase',
   
   defaults:
@@ -797,9 +796,8 @@ SSUnitTest.TestCase = new Class({
 
 SSUnitTest.ResultFormatter = new Class({
   
-  name: 'SSUnitTest.ResultFormatter',
-  
   initialize: function() {},
+  name: 'SSUnitTest.ResultFormatter',
   
   asString: function(testResult) 
   {
@@ -862,7 +860,6 @@ SSUnitTest.ResultFormatter = new Class({
 SSUnitTest.ResultFormatter.Console = new Class({
   
   Extends: SSUnitTest.ResultFormatter,
-
   name: 'SSUnitTest.ResultFormatter.Console',
   
   output: function(testResult, depth)
@@ -893,7 +890,6 @@ SSUnitTest.ResultFormatter.Console = new Class({
 SSUnitTest.ResultFormatter.BasicDOM = new Class({
   
   Extends: SSUnitTest.ResultFormatter,
-
   name: 'SSUnitTest.ResultFormatter.BasicDOM',
   
   initialize: function(_container)
