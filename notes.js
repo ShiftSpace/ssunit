@@ -6,6 +6,10 @@ var sum = $arity(
 )
 */
 
+function $arglist(fn) {
+  return fn.toString().match(/function \S*\((.*?)\)/)[1].split(',');
+}
+
 function $not(fn) {
   return function() {
     return !fn.apply(this, $A(arguments));
@@ -14,12 +18,11 @@ function $not(fn) {
 function $isnull(v) { return v === null; };
 function $notnull(v) { return v !== null; };
 
-function $arity()
-{
+function $arity() {
   var fns = $A(arguments);
   var dispatch = [];
   fns.each(function(fn) {
-    var arglist = fn.toString().match(/function \S*\((.*?)\)/)[1].split(',');
+    var arglist = $arglist(fn);
     dispatch[arglist.length] = fn;
   });
   return function () {
