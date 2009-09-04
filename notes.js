@@ -5,6 +5,15 @@ var sum = $arity(
   function(a, b) { return a + b.first(); };
 )
 */
+
+function $not(fn) {
+  return function() {
+    return !fn.apply(this, $A(arguments));
+  }
+}
+function $isnull(v) { return v === null; };
+function $notnull(v) { return v !== null; };
+
 function $arity()
 {
   var fns = $A(arguments);
@@ -14,15 +23,26 @@ function $arity()
     dispatch[arglist.length] = fn;
   });
   return function () {
-    var args = $A(arguments);
+    var args = $A(arguments).filter($notnull);
     return dispatch[args.length].apply(this, args);
   }
 }
 
 var sum = $arity(
   function(a) { return a; },
-  function(a, b) { return a + (($type(b) == 'array') ? b.first() : b); }
+  function(a, b) { return a + (($type(b) == 'array') ? b.first() || 0 : b); }
 );
+
+function $reduce(fn, ary) {
+  ary = $A(ary);
+  var result = ary.first();
+  while(ary.length != 0) {
+    var rest = ary.rest();
+    result = fn(result, rest);
+    ary = rest;
+  }
+  return result;
+}
 
 var SSUnit = {};
 SSUnit.assertEqual = function(a, b) {
