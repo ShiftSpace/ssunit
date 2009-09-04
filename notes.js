@@ -1,51 +1,7 @@
-/*
-"function $9hello(a, b) { cool(); }(".match(/function \S*\((.*?)\)/)
 var sum = $arity(
-  function(a) { return a };
-  function(a, b) { return a + b.first(); };
-)
-*/
-
-function $arglist(fn) {
-  return fn.toString().match(/function \S*\((.*?)\)/)[1].split(',');
-}
-
-function $not(fn) {
-  return function() {
-    return !fn.apply(this, $A(arguments));
-  }
-}
-function $isnull(v) { return v === null; };
-function $notnull(v) { return v !== null; };
-
-function $arity() {
-  var fns = $A(arguments);
-  var dispatch = [];
-  fns.each(function(fn) {
-    var arglist = $arglist(fn);
-    dispatch[arglist.length] = fn;
-  });
-  return function () {
-    var args = $A(arguments).filter($notnull);
-    return dispatch[args.length].apply(this, args);
-  }
-}
-
-var sum = $arity(
-  function(a) { return a; },
-  function(a, b) { return a + (($type(b) == 'array') ? b.first() || 0 : b); }
+  function(a) { return a; }.asPromise(),
+  function(a, b) { return a + (($type(b) == 'array') ? b.first() || 0 : b); }.asPromise()
 );
-
-function $reduce(fn, ary) {
-  ary = $A(ary);
-  var result = ary.first();
-  while(ary.length != 0) {
-    var rest = ary.rest();
-    result = fn(result, rest);
-    ary = rest;
-  }
-  return result;
-}
 
 var SSUnit = {};
 SSUnit.assertEqual = function(a, b) {
