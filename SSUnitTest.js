@@ -80,11 +80,115 @@ if(typeof $get == 'undefined') {
   };
 }
 
+if(typeof $not == 'undefined')
+{
+  function $not(fn) {
+    return function() {
+      return !fn.apply(this, $A(arguments));
+    }
+  }
+  function $isnull(v) { return v === null; };
+  function $notnull(v) { return v !== null; };
+
+  function $arity()
+  {
+    var fns = $A(arguments);
+    var dispatch = [];
+    fns.each(function(fn) {
+      var arglist = fn.toString().match(/function \S*\((.*?)\)/)[1].split(',');
+      dispatch[arglist.length] = fn;
+    });
+    return function () {
+      var args = $A(arguments).filter($notnull);
+      return dispatch[args.length].apply(this, args);
+    }
+  }
+
+  var sum = $arity(
+    function(a) { return a; },
+    function(a, b) { return a + (($type(b) == 'array') ? b.first() || 0 : b); }
+  );
+
+  function $reduce(fn, ary) {
+    ary = $A(ary);
+    var result = ary.first();
+    while(ary.length != 0) {
+      var rest = ary.rest();
+      result = fn(result, rest);
+      ary = rest;
+    }
+    return result;
+  }
+}
+
+function $deftest(doc, fn) {
+  fn.__doc = doc;
+  fn.__istest = true;
+  return fn;
+}
+
+function $doc(fn) { return fn.__doc; };
+function $name(fn) { return fn.__name; };
+function $origin(fn) { return fn._origin };
+
+function $processTest(test) {
+  for(var field in test) {
+    var v = test[field];
+    if($type(v) == "function") {
+      var origin = $origin(v);
+      if(origin.__istest) {
+        v.__istest = true;
+        v.__doc = origin.__doc;
+        v.__name = field;
+        origin.__name = field;
+      }
+    }
+  }
+  return test;
+}
+
 // =============
 // = NameSpace =
 // =============
 
 var SSUnit = {};
+
+SSUnit.async = function() {
+  var caller = SSUnit.async.caller;
+  var p = new Promise({
+    meta: {
+      name: caller.__name,
+      doc: caller.__doc,
+      caller: caller
+    }
+  });
+  p.op(function(v) {
+    caller.__result.message = v.message;
+    caller.__result.success = v.success;
+  });
+  caller.__result = p;
+  return p;
+};
+
+SSUnit.endAsync = function(p) { p.realize(); };
+
+SSUnit.assertEqual = function(a, b, p) {
+  var success = (a == b);
+  var message = "";
+  if(!success) {
+    message = ["SSUnit.asertEqual failed", a, "not equal to", b].join(" ") + ".";
+  }
+  var caller = (p) ? p.meta().caller : SSUnit.assertEqual.caller;
+  var lastValue = (p) ? p.value(false) : caller.__result; // if promise get the value, do not apply ops
+  var newValue = {success:success, message: message};
+  if(p) {
+    if(lastValue === null || lastValue === true) {
+      caller.__result.setValue(newValue, false); // set the value to false, do not trigger realized event
+    }
+  } else if(lastValue == null || lastValue === true) {
+    caller.__result = newValue;
+  }
+};
 
 // ===================
 // = SSUnitTest.Base =
