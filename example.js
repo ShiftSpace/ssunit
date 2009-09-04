@@ -6,17 +6,18 @@ var TestTest = new Class({
   setup: function() {},
   tearDown: function() {},
   
-  testAdd: function() {
-    this.doc("add two numbers");
-    this.assertEqual(1 + 2, 3);
-  },
+  add: $deftest(
+    "Add two numbers",
+    function() { SSUnit.assertEqual(1 + 2, 3); }
+  ),
   
-  testSubtract: function() {
-    this.doc("subtract two numbers")
-    this.assertEqual(3 - 1, 1);
-  }
+  subtract: $deftest(
+    "Substract two nubmers",
+    function() { SSUnit.assertEqual(3 - 1, 1); }
+  )
 });
 
+/*
 var TestAsync = new Class({
   Extends: SSUnitTest.TestCase,
   
@@ -37,9 +38,8 @@ var TestAsync = new Class({
     }
   )
 });
+*/
 
 function init() {
   console.log("init");
-  new TestTest({autoCollect: true});
-  SSUnitTest.main();
 }

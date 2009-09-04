@@ -45,7 +45,7 @@ function $processTest(test) {
     var v = test[field];
     if($type(v) == "function") {
       var origin = $origin(v);
-      if(origin.__istest) {
+      if(origin && origin.__istest) {
         v.__istest = true;
         v.__doc = origin.__doc;
         v.__name = field;
@@ -237,7 +237,8 @@ var SSUnitTestClass = new Class({
     if(options != null) {
       if(options.formatter) this.setFormatter(options.formatter);
     }
-    this.run();
+    SSLog('collect tests!', SSLogForce);
+    //this.run();
   }
 });
 var SSUnitTest = new SSUnitTestClass()
