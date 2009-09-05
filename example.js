@@ -66,3 +66,8 @@ function demo2() {
   var t = new TestTest();
   SSUnitTest.main();
 }
+
+function demo3() {
+  var s = new TestSuite();
+  SSUnitTest.main();
+}
