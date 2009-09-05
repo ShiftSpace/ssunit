@@ -23,6 +23,7 @@ var TestSuite = new Class({
   name: "TestSuite",
   
   initialize: function() {
+    this.parent();
     this.addTest(TestTest);
   }
 });
