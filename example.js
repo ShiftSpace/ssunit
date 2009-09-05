@@ -18,6 +18,15 @@ var TestTest = new Class({
   )
 });
 
+var TestSuite = new Class({
+  Extends: SSUnitTest.TestSuite,
+  name: "TestSuite",
+  
+  initialize: function() {
+    this.addTest(TestTest);
+  }
+});
+
 /*
 var TestAsync = new Class({
   Extends: SSUnitTest.TestCase,
@@ -51,4 +60,9 @@ function demo() {
   var f = new SSUnitTest.ResultFormatter.Console();
   t.run();
   f.output(r);
+}
+
+function demo2() {
+  var t = new TestTest();
+  
 }

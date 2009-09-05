@@ -226,7 +226,7 @@ var SSUnitTestClass = new Class({
       if(options.formatter) this.setFormatter(options.formatter);
     }
     SSLog('collect tests!', SSLogForce);
-    //this.run();
+    this.run();
   }
 });
 var SSUnitTest = new SSUnitTestClass()
@@ -290,13 +290,14 @@ SSUnitTest.TestCase = new Class({
   
   initialize: function(options) {
     this.setOptions(this.defaults, options);
-    this.__results = $processTest(this);
+    this.__testData = $processTest(this);
+    this.__results = this.prepare();
     if(this.options.autoCollect) SSUnitTest.addTest(this);
   },
   
-  results: function() {
-    var results = this.__results;
-    var passed = $reduce(sum, this.__results.map($acc('success')));
+  prepare: function() {
+    var results = this.__testData;
+    var passed = $reduce(sum, this.__testData.map($acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
     var message = $lazy();
@@ -311,11 +312,15 @@ SSUnitTest.TestCase = new Class({
     }
   },
   
+  results: function() {
+    return this.__results;
+  },
+  
   setup: function() {},
   tearDown: function() {},
 
   run: function() {
-    this.__results.each(function(resultData) {
+    this.__testData.each(function(resultData) {
       var fn = resultData.fn;
       var success = 1;
       
