@@ -481,14 +481,19 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     resultDiv.getElement('.testName').set('text', testResult.name);
     resultDiv.getElement('.doc').set('text', testResult.doc || '');
     this.setStatusColor(resultDiv.getElement('.status'), testResult.success);
-    this.setStatusColor(resultDiv.getElement('.message'), testResult.success);
+    this.setStatusText(resultDiv.getElement('.status'), testResult.success);
+    this.setStatusColor(resultDiv.getElement('.message'), testResult.message);
     set(resultDiv.getElement('.message'), 'text', testResult.message);
 
     return resultDiv;
   },
   
+  setStatusText: function(el, success) {
+    el.set('text', (success) ? 'passed' : 'failed');
+  }.asPromise(),
+  
   setStatusColor: function(el, success) {
-    el.setProperty('color', (success ) ? 'green' : 'red');
+    el.setStyle('color', (success) ? 'green' : 'red');
   }.asPromise(),
 
   output: function(testResult, depth) {
