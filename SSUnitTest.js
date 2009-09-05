@@ -72,8 +72,8 @@ var SSUnit = {};
 // = Async Support =
 // =================
 
-SSUnit.async = function() {
-  var caller = SSUnit.async.caller;
+SSUnit.startAsync = function() {
+  var caller = SSUnit.startAsync.caller;
   caller.__async = true;
   return caller.__result;
 };
@@ -81,7 +81,7 @@ SSUnit.async = function() {
 SSUnit.endAsync = function(hook) {
   hook.success.realize();
   hook.message.realize();
-};
+}.asPromise();
 
 // ==============
 // = Assertions =
@@ -91,7 +91,7 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
   return function assertFn() {
     var args = $A(arguments), hook = (args.length > arity) ? args.getLast() : null;
     args = $A(arguments).head(arity);
-    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = assertFn.caller;;
+    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = assertFn.caller;
     var result = (hook) ? hook : (caller && caller.__result);
     if(result) {
       var old = result.success.value(false);
