@@ -69,13 +69,14 @@ var TestC = new Class({
 })
 </pre>
 
-You can start a asynchronous test with a call to *SSUnit.startAsync()*. This will generate a hook which can be used to declare that the test has successfully completed. You might notice that no asynchronous calls appear to be made here. This is because SSUnit is built on top of Promises, a MooTools library for simplfying request heavy code as well as enabling a simple form of delayed evaluation. Please look at http://github.com/ShiftSpace/promises/tree/master for a lengthier exposition.
+You can start a asynchronous test with a call to *SSUnit.startAsync()*. This will generate a hook which can be used to declare that the test has successfully completed. You might notice that no asynchronous calls appear to be made here. This is because SSUnit is built on top of Promises, a MooTools library for simplfying request heavy code as well as enabling a simple form of delayed evaluation. Please look at "here":http://github.com/ShiftSpace/promises/tree/master for a lengthier exposition.
 
 h2. Instructions
 
-SSUnit depends on two other ShiftSpace libraries, FuncTools (http://github.com/ShiftSpace/functools/tree/master) and Promises (http://github.com/ShiftSpace/promises/tree/master). They are submodules of this repository, in order to bring them in run the following after you have cloned this repo from the repo's directory:
+SSUnit depends on two other ShiftSpace libraries, "FuncTools":http://github.com/ShiftSpace/functools/tree/master and "Promises":http://github.com/ShiftSpace/promises/tree/master. They are submodules of this repository, in order to bring them in run the following after you have cloned this repo from the repo's directory:
 
 <pre>
+> cd into/git/repo
 > git submodule init
 > git submodule add
 </pre>
