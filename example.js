@@ -2,6 +2,7 @@ window.addEvent('domready', init);
 
 var TestTest = new Class({
   Extends: SSUnitTest.TestCase,
+  name: "TestTest",
   
   setup: function() {},
   tearDown: function() {},
@@ -42,4 +43,12 @@ var TestAsync = new Class({
 
 function init() {
   console.log("init");
+}
+
+function demo() {
+  var t = new TestTest();
+  var r = t.results();
+  var f = new SSUnitTest.ResultFormatter.Console();
+  t.run();
+  f.output(r);
 }

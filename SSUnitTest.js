@@ -85,7 +85,7 @@ SSUnit.assertEqual = function(a, b, hook) {
   var old = result.success.value(false);
   if(old === null || old === undefined || old == 1) {
     result.success.setValue(success, false);
-    if(!success) result.message.setValue(["FAIL", a, "not equal to", b].join(" ") + ".", false);
+    if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
   }
 };
 
@@ -93,7 +93,7 @@ SSUnit.assertNotEqual = function(a, b, p) {
   var success = (a != b);
   var message = "";
   if(!success) {
-    message = ["SSUnit.asertEqual failed", a, "equal to", b].join(" ") + ".";
+    message = [a, "equal to", b].join(" ") + ".";
   }
   var caller = (p) ? p.meta().caller : SSUnit.assertEqual.caller;
   if(caller)
@@ -187,7 +187,7 @@ SSUnit.ResultsProducer = new Class({
     var passed = $reduce(sum, subTests.map($msg('get', 'success')));
     var failed = passed.fn(function(n) { return subTests.length - n; });
     var success = passed.fn(function(n) { return passed == subTests.length; });
-    var messsage = success.fn(function(bool) { return (bool) ? "PASS" : "FAIL"; });
+    var message = $lazy();
     return {
       name: this.name,
       count: subTests.length,
@@ -299,7 +299,7 @@ SSUnitTest.TestCase = new Class({
     var passed = $reduce(sum, this.__results.map($acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
-    var message = success.fn(function(bool) { return (bool) ? "PASS" : "FAIL"; });
+    var message = $lazy();
     return {
       name: this.name,
       count: results.length,
@@ -328,9 +328,8 @@ SSUnitTest.TestCase = new Class({
       fn.__result = resultData;
       try {
         fn();
-        message = "PASS";
       } catch(err) {
-        message = "FAIL, uncaught exception: " + SSDescribeException(err);
+        message = "uncaught exception: " + SSDescribeException(err);
         success = 0;
       } 
 
@@ -338,12 +337,7 @@ SSUnitTest.TestCase = new Class({
       resultData.success.setValue(old && success, !fn.__async);
       
       var message = resultData.message.value(false);
-      if(message === null || message === undefined)
-      {
-        resultData.message.setValue((old && success) ? "PASS" : "FAIL", !fn.__async);
-      } else if(!fn.__async) {
-        resultData.message.realize();
-      }
+      if(!fn.__async) resultData.message.realize();
       
       try {
         this.tearDown();
@@ -397,8 +391,8 @@ SSUnitTest.ResultFormatter = new Class({
     var resultString = [];
     resultString.push(testResult.name + ":");
     resultString.push(testResult.doc || '');
-    resultString.push((testResult.success && "PASS") || "FAIL");
-    resultString.push(testResult.message || "");
+    resultString.push((testResult.success.value() && "PASS") || "FAIL");
+    resultString.push(testResult.message.value() || "");
     if(testResult['error']) resultString.push(", error:" + testResult['error']);
     resultString.push("...");
     return resultString.join(" ");
@@ -407,11 +401,10 @@ SSUnitTest.ResultFormatter = new Class({
   format: function(aResult, depth) {},
 
   output: function(aResult, depth) {
-    // get the depth
     depth = (depth != null) ? depth : 0;
-    var subResults = aResult.tests;
-    if(subResults && subResults.getLength() > 0) {
-      subResults.each(function(subResult, subResultName) {
+    var subResults = aResult.subTests;
+    if(subResults && subResults.length > 0) {
+      subResults.each(function(subResult) {
         this.output(subResult, depth+1);
       }.bind(this));
     }
@@ -422,7 +415,6 @@ SSUnitTest.ResultFormatter = new Class({
 
 
 SSUnitTest.ResultFormatter.Console = new Class({
-  
   Extends: SSUnitTest.ResultFormatter,
   name: 'SSUnitTest.ResultFormatter.Console',
   
@@ -430,19 +422,22 @@ SSUnitTest.ResultFormatter.Console = new Class({
     console.log("  ".repeat(depth) + this.asString(testResult));
     // call parent, required for relaying depth of test
     this.parent(testResult, depth);
+    this.totals(testResult, depth);
   },
   
-  totals: function(testResult) {
-    var totals = {
-      count: testResult.count,
-      passed: testResult.passed,
-      failed: testResult.failed,
-    };
+  totals: function(testResult, depth) {
+    if(testResult.count)
+    {
+      var totals = {
+        count: testResult.count,
+        passed: testResult.passed.value(),
+        failed: testResult.failed.value(),
+      };
     
-    console.log('------------------------------------------');
-    console.log('{count} tests, {passed} passed, {failed} failed.'.substitute(totals));
+      console.log("  ".repeat(depth) + '------------------------------------------');
+      console.log("  ".repeat(depth) + '{count} tests, {passed} passed, {failed} failed.'.substitute(totals));
+    }
   }
-  
 });
 
 
