@@ -138,7 +138,7 @@ SSUnit.assertThrows = SSUnit.assertGenerator(
     }
     return false;
   },
-  function(msgp, type) { msgp.setValue(["exception", (new type()).name, "not thrown"].join(" ") + ".", false); },
+  function(msgp, type) { msgp.setValue(["exception", (new type()).name || "Error", "not thrown"].join(" ") + ".", false); },
   2
 );
 
