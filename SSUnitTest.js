@@ -481,23 +481,31 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
       message: testResult.message || ''
     };
     
-    resultDiv.set('html', ('<span><b>{testName}:</b></span> <span>{doc}</span> <span style="color:{statusColor};">{status}</span> <span style="color:{statusColor}">{message}</span> ...').substitute(testData));
+    resultDiv.set('html', '<span><b class="testName"></b></span> <span class="doc"></span> <span class="status" style="color:green;"></span> <span class="message" style="color:green"></span> ...');
     
+    var set = Element.set.asPromise();
+    resultDiv.getElement('.testName').set('text', testResult.name);
+    resultDiv.getElement('.doc').set('text', testResult.doc || '');
+    this.setStatusColor(resultDiv.getElement('.status'), testResult.success);
+    this.setStatusColor(resultDiv.getElement('.message'), testResult.success);
+    set(resultDiv.getElement('.message'), 'text', testResult.message);
+
     return resultDiv;
   },
+  
+  setStatusColor: function(el, success) {
+    el.setProperty('color', (success ) ? 'green' : 'red');
+  }.asPromise(),
 
   output: function(testResult, depth) {
     this.container().grab(this.format(testResult, depth));
     this.parent(testResult, depth);
+    if(testResult.count) {
+      this.totals(testResult);
+    }
   },
   
   totals: function(testResult) {
-    var totals = {
-      count: testResult.count,
-      passed: testResult.passed,
-      failed: testResult.failed
-    };
-    
     var totalsDiv = new Element('div', {
       'class': "SSTestResultTotals"
     });
@@ -505,8 +513,13 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
       borderTop: '1px dashed black'
     });
     
-    totalsDiv.set('text', ("Total test: {count}, Passed: {passed}, Failed: {failed}").substitute(totals));
+    totalsDiv.set('text', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");
     
+    var set = Element.set.asPromise();
+    totalsDiv.getElement('.count').set('text', testResult.count);
+    set(totalsDiv.getElement('.passed'), 'text', testResult.passed);
+    set(totalsDiv.getElement('.failed'), 'texte', testResult.failed);
+
     this.container().grab(totalsDiv);
   }
 });
