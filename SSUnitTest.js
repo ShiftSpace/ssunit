@@ -1,3 +1,10 @@
+// ==Builder==
+// @optional
+// @name              SSUnitTest
+// @package           Testing
+// @dependencies      SSException
+// ==/Builder==
+
 // ==============
 // = Utilities =
 // ==============
