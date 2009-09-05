@@ -1,5 +1,12 @@
 window.addEvent('domready', init);
 
+var get = function(rsrc) 
+{
+  return new Request({
+    url: 'data/'+rsrc+'.json'
+  });
+}.decorate(promise)
+
 var TestA = new Class({
   Extends: SSUnitTest.TestCase,
   name: "TestA",
@@ -31,6 +38,24 @@ var TestB = new Class({
   )
 });
 
+var TestC = new Class({
+  Extends: SSUnitTest.TestCase,
+  name: "TestC",
+  
+  setup: function() {},
+  tearDown: function() {},
+  
+  add: $deftest(
+    "Add two numbers",
+    function() 
+    { 
+      var hook = SSUnit.startAsync();
+      SSUnit.assertEqual(1 + 2, 3, hook);
+      SSUnit.endAsync(hook);
+    }
+  )
+});
+
 var TestSuite = new Class({
   Extends: SSUnitTest.TestSuite,
   name: "TestSuite",
@@ -40,29 +65,6 @@ var TestSuite = new Class({
     this.addTest(TestB);
   }
 });
-
-/*
-var TestAsync = new Class({
-  Extends: SSUnitTest.TestCase,
-  
-  setup: function() {},
-  tearDown: function() {},
-  
-  testUI: $deftest(
-    "test loading interface",
-    function() 
-    {
-      var p = SSUnit.async();
-      var p1 = SSLoadFile('foobar.html');
-      var p2 = this.initUI(p1);
-      p2.op(function(v) { 
-        SSUnit.assertEqual(SSControllerForNode($('foobar')).getName(), "barbaz", p);
-        SSUnit.endAsync(p);
-        })
-    }
-  )
-});
-*/
 
 function init() {
   console.log("init");
@@ -89,6 +91,12 @@ function demo3() {
 
 function demo4() {
   var t = new TestA();
+  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  SSUnitTest.main({formatter:f});
+}
+
+function demo5() {
+  var t = new TestC();
   var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
