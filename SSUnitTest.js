@@ -457,7 +457,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     });
   },
   
-  initialize: function(container) {
+  initialize: function(options) {
     this.parent(options);
     this.__container = ($type(this.options.container) == 'string') ? $(this.options.container) : this.options.container;
   },
@@ -513,7 +513,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
       borderTop: '1px dashed black'
     });
     
-    totalsDiv.set('text', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");
+    totalsDiv.set('html', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");
     
     var set = Element.set.asPromise();
     totalsDiv.getElement('.count').set('text', testResult.count);
