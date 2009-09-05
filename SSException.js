@@ -1,9 +1,3 @@
-// ==Builder==
-// @optional
-// @name              SSException
-// @package           System
-// ==/Builder==
-
 var SSExceptionPrinter = new Class({
   toString: function() {
     return ["["+this.name+"] message: " + this.message(), " fileName:" + this.fileName(), " lineNumber: " + this.lineNumber(), (this.originalError() && this.originalError().message) || 'no original error'].join(", ");
