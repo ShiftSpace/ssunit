@@ -129,6 +129,32 @@ SSUnit.assertNotEqual = function(a, b, hook) {
   }
 };
 
+SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
+  return function () {
+    var hook = $A(arguments).getLast();
+    var args = $A(arguments).head(arity);
+    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
+    var result = (hook) ? hook : (caller && caller.__result);
+    if(result) {
+      var old = result.success.value(false);
+      if(old === null || old === undefined || old == 1) {
+        result.success.setValue(success, false);
+        if(!success) failMessageFn.apply(this, args);
+      }
+    } else {
+      return success == 1;
+    }
+  }
+}
+
+/*
+SSUnit['assert'] = SSUnit.assertGenerator(
+  $identity,
+  function(msgp, a) { msgp.setValue([a, "is false-y"].join(" ") + ".", false); },
+  1
+);
+*/
+
 /*
 assertThrows: function(exceptionType, fn, args, hook) {
   if(arguments.length < 2) {
@@ -222,6 +248,7 @@ var SSUnitTestClass = new Class({
   main: function(options) {
     var f = (options) ? options.formatter : (this.formatter() || new SSUnitTest.ResultFormatter.Console),
         rs = this.tests().map($msg('results'));
+    console.log('results', rs);
     if(f.options.supportsInteractive) rs.each(f.output.bind(f));
     this.run();
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
