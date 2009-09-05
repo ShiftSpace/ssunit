@@ -123,7 +123,7 @@ SSUnit.assertEqual = SSUnit.assertGenerator(
   2
 );
 
-SSUnit.assertNotEqual. = SSUnit.assertGenerator(
+SSUnit.assertNotEqual = SSUnit.assertGenerator(
   function(a, b) { return a != b },
   function(msgp, a, b) { msgp.setValue([a, "is equal to", b].join(" ") + ".", false); },
   2
@@ -136,7 +136,7 @@ SSUnit.assertThrows = SSUnit.assertGenerator(
     } catch(err) {
       return (err instanceof type);
     }
-    return false
+    return false;
   },
   function(msgp, type) { msgp.setValue(["exception", (new type()).name, "not thrown"].join(" ") + ".", false); },
   2
