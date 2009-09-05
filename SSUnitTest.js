@@ -97,7 +97,11 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
       var old = result.success.value(false);
       if(old === null || old === undefined || old == 1) {
         result.success.setValue(success, false);
-        if(!success) failMessageFn.apply(this, [result.message].combine(args));
+        if(!success) {
+          failMessageFn.apply(this, [result.message].combine(args));
+        } else {
+          result.message.setValue("", false);
+        }
       }
     } else {
       return success == 1;
@@ -325,7 +329,7 @@ SSUnitTest.TestCase = new Class({
       } catch(err) {
         message = "uncaught exception: " + SSDescribeException(err);
         success = 0;
-      } 
+      }
 
       var old = resultData.success.value(false);
       resultData.success.setValue(old && success, !fn.__async);
@@ -424,7 +428,6 @@ SSUnitTest.ResultFormatter.Console = new Class({
         passed: testResult.passed.value(),
         failed: testResult.failed.value(),
       };
-    
       console.log("  ".repeat(depth) + '------------------------------------------');
       console.log("  ".repeat(depth) + '{count} tests, {passed} passed, {failed} failed.'.substitute(totals));
     }
@@ -458,14 +461,6 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
       marginLeft: 10*depth
     });
     
-    var testData = {
-      testName: testResult.name,
-      status: (testResult.success && 'passed') || 'failed',
-      statusColor: (testResult.success && 'green') || 'red',
-      doc: testResult.doc || '',
-      message: testResult.message || ''
-    };
-    
     resultDiv.set('html', '<span><b class="testName"></b></span> <span class="doc"></span> <span class="status" style="color:green;"></span> <span class="message" style="color:green"></span> ...');
     
     var set = Element.set.asPromise();
@@ -473,7 +468,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     resultDiv.getElement('.doc').set('text', testResult.doc || '');
     this.setStatusColor(resultDiv.getElement('.status'), testResult.success);
     this.setStatusText(resultDiv.getElement('.status'), testResult.success);
-    this.setStatusColor(resultDiv.getElement('.message'), testResult.message);
+    this.setStatusColor(resultDiv.getElement('.message'), testResult.success);
     set(resultDiv.getElement('.message'), 'text', testResult.message);
 
     return resultDiv;
@@ -486,7 +481,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
   setStatusColor: function(el, success) {
     el.setStyle('color', (success) ? 'green' : 'red');
   }.asPromise(),
-
+  
   output: function(testResult, depth) {
     this.container().grab(this.format(testResult, depth));
     this.parent(testResult, depth);
