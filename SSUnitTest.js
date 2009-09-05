@@ -316,13 +316,12 @@ SSUnitTest.TestCase = new Class({
   initialize: function(options) {
     this.setOptions(this.defaults, options);
     this.__testData = $processTest(this);
-    this.__results = this.prepare();
+    this.__results = this.prepare(this.__testData);
     if(this.options.autoCollect) SSUnitTest.addTest(this);
   },
   
-  prepare: function() {
-    var results = this.__testData;
-    var passed = $reduce(sum, this.__testData.map($acc('success')));
+  prepare: function(results) {
+    var passed = $reduce(sum, results.map($acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
     var message = $lazy();
