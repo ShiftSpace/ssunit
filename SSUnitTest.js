@@ -266,7 +266,7 @@ var SSUnitTest = new SSUnitTestClass()
 // = Exceptions =
 // ==============
 
-SSUnitTest.Error = new Class({
+SSUnit.Error = new Class({
   Extends: SSException,
   Implements: SSExceptionPrinter,
   initialize: function(_error, message) {
@@ -276,31 +276,31 @@ SSUnitTest.Error = new Class({
   name: 'SSUnitTest.Error'
 });
 
-SSUnitTest.AssertError = new Class({
+SSUnit.AssertError = new Class({
   Extends: SSUnitTest.Error,
   Implements: SSExceptionPrinter,
   name:'SSUnitTest.AssertError'
 });
 
-SSUnitTest.AssertEqualError = new Class({
+SSUnit.AssertEqualError = new Class({
   Extends: SSUnitTest.Error,
   Implements: SSExceptionPrinter,
   name:'SSUnitTest.AssertEqualError'
 });
 
-SSUnitTest.AssertNotEqualError = new Class({
+SSUnit.AssertNotEqualError = new Class({
   Extends: SSUnitTest.Error,
   Implements: SSExceptionPrinter,
   name:'SSUnitTest.AssertNotEqualError'
 });
 
-SSUnitTest.AssertThrowsError = new Class({
+SSUnit.AssertThrowsError = new Class({
   Extends: SSUnitTest.Error,
   Implements: SSExceptionPrinter,
   name:'SSUnitTest.AssertThrowsError'
 });
 
-SSUnitTest.NoFormatter = new Class({
+SSUnit.NoFormatter = new Class({
   Extends: SSUnitTest.Error,
   Implements: SSExceptionPrinter,
   name:'SSUnitTest.NoFormatter'
@@ -311,7 +311,6 @@ SSUnitTest.NoFormatter = new Class({
 // =======================
 
 SSUnitTest.TestCase = new Class({
-  
   Implements: [Options],
   name: 'SSUnitTest.TestCase',
   
@@ -388,7 +387,6 @@ SSUnitTest.TestCase = new Class({
 // ========================
 
 SSUnitTest.TestSuite = new Class({
-  
   Implements: [Options, SSUnit.TestIterator, SSUnit.ResultsProducer],
   name: 'SSUnitTest.TestSuite',
   
@@ -400,7 +398,6 @@ SSUnitTest.TestSuite = new Class({
     this.setOptions(this.defaults, options);
     if(this.options.autoCollect) SSUnitTest.addTest(this);
   }
-  
 });
 
 // ==================================
@@ -408,7 +405,6 @@ SSUnitTest.TestSuite = new Class({
 // ==================================
 
 SSUnitTest.ResultFormatter = new Class({
-  
   Implements: [Options],
   name: 'SSUnitTest.ResultFormatter',
   
@@ -477,7 +473,6 @@ SSUnitTest.ResultFormatter.Console = new Class({
 
 
 SSUnitTest.ResultFormatter.BasicDOM = new Class({
-  
   Extends: SSUnitTest.ResultFormatter,
   name: 'SSUnitTest.ResultFormatter.BasicDOM',
   
