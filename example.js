@@ -16,7 +16,7 @@ var TestA = new Class({
   setup: function() {},
   tearDown: function() {},
   
-  add: $deftest(
+  add: $fixture(
     "Add two numbers",
     function() { SSUnit.assertEqual(1 + 2, 3); }
   )
@@ -30,12 +30,12 @@ var TestB = new Class({
   setup: function() {},
   tearDown: function() {},
   
-  add: $deftest(
+  add: $fixture(
     "Add two numbers",
     function() { SSUnit.assertEqual(1 + 2, 3); }
   ),
   
-  subtract: $deftest(
+  subtract: $fixture(
     "Subtract two numbers",
     function() { SSUnit.assertEqual(3 - 1, 1); }
   )
@@ -49,7 +49,7 @@ var TestC = new Class({
   setup: function() {},
   tearDown: function() {},
   
-  add1: $deftest(
+  add1: $fixture(
     "Check adding two remote resources",
     function() 
     { 
@@ -63,7 +63,7 @@ var TestC = new Class({
     }
   ),
   
-  add2: $deftest(
+  add2: $fixture(
     "Check adding two remote resources",
     function() 
     { 
@@ -77,7 +77,7 @@ var TestC = new Class({
     }
   ),
   
-  add3: $deftest(
+  add3: $fixture(
     "Check adding two remote resources",
     function() 
     { 
