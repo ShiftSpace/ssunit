@@ -111,25 +111,25 @@ SSUnit['assert'] = SSUnit.assertGenerator(
   1
 );
 
-SSUnit['assertFalse'] = SSUnit.assertGenerator(
+SSUnit.assertFalse = SSUnit.assertGenerator(
   $not($identity),
   function(msgp, a) { msgp.setValue([a, "is truth-y"].join(" ") + ".", false); },
   1
 );
 
-SSUnit['assertEqual'] = SSUnit.assertGenerator(
+SSUnit.assertEqual = SSUnit.assertGenerator(
   function(a, b) { return a == b },
   function(msgp, a, b) { msgp.setValue([a, "is not equal to", b].join(" ") + ".", false); },
   2
 );
 
-SSUnit['assertNotEqual'] = SSUnit.assertGenerator(
+SSUnit.assertNotEqual. = SSUnit.assertGenerator(
   function(a, b) { return a != b },
   function(msgp, a, b) { msgp.setValue([a, "is equal to", b].join(" ") + ".", false); },
   2
 );
 
-SSUnit['assertThrows'] = SSUnit.assertGenerator(
+SSUnit.assertThrows = SSUnit.assertGenerator(
   function(type, fn) {
     try {
       fn();
