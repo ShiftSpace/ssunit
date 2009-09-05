@@ -53,6 +53,7 @@ function $processTest(test) {
         testData.push({
           name: field,
           fn: origin,
+          doc: origin.__doc,
           success: $lazy(),
           message: $lazy(),
         });
@@ -79,37 +80,87 @@ SSUnit.endAsync = function(hook) {
   hook.message.realize();
 };
 
-SSUnit.assertEqual = function(a, b, hook) {
-  var success = (a == b) ? 1 : 0, message = "";
-  var result = (hook) ? hook : SSUnit.assertEqual.caller.__result;
-  var old = result.success.value(false);
-  if(old === null || old === undefined || old == 1) {
-    result.success.setValue(success, false);
-    if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
+SSUnit.assert = function(a, hook) {
+  var success = (a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "is false-y"].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
   }
 };
 
-SSUnit.assertNotEqual = function(a, b, p) {
-  var success = (a != b);
-  var message = "";
-  if(!success) {
-    message = [a, "equal to", b].join(" ") + ".";
+SSUnit.assertFalse = function(a, hook) {
+  var success = (!a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "is truth-y", b].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
   }
-  var caller = (p) ? p.meta().caller : SSUnit.assertEqual.caller;
-  if(caller)
-  {
-    var lastValue = (p) ? p.value(false) : caller.__result; // if promise get the value, do not apply ops
-    var newValue = {success:success, message: message};
-    if(p) {
-      if(lastValue === null || lastValue === true) {
-        caller.__result.setValue(newValue, false); // set the value to false, do not trigger realized event
+};
+
+SSUnit.assertEqual = function(a, b, hook) {
+  var success = (a == b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
+  }
+};
+
+SSUnit.assertNotEqual = function(a, b, hook) {
+  var success = (a != b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "equal to", b].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
+  }
+};
+
+SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
+  return function () {
+    var hook = $A(arguments).getLast();
+    var args = $A(arguments).head(arity);
+    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
+    var result = (hook) ? hook : (caller && caller.__result);
+    if(result) {
+      var old = result.success.value(false);
+      if(old === null || old === undefined || old == 1) {
+        result.success.setValue(success, false);
+        if(!success) failMessageFn.apply(this, args);
       }
-    } else if(lastValue == null || lastValue === true) {
-      caller.__result = newValue;
+    } else {
+      return success == 1;
     }
   }
-  return success;
-};
+}
+
+/*
+SSUnit['assert'] = SSUnit.assertGenerator(
+  $identity,
+  function(msgp, a) { msgp.setValue([a, "is false-y"].join(" ") + ".", false); },
+  1
+);
+*/
 
 /*
 assertThrows: function(exceptionType, fn, args, hook) {
@@ -134,26 +185,6 @@ assertThrows: function(exceptionType, fn, args, hook) {
     } else {
       this.__setTestFail__(caller);
     }
-  }
-},
-
-assert: function(value, hook) {
-  if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assert expects 1 arguments.');
-  var caller = $pick(hook, this.assert.caller);
-  if(value == true) {
-    this.__setTestSuccess__(caller);
-  } else {
-    this.__setTestFail__(caller);
-  }
-},
-
-assertFalse: function(value, hook) {
-  if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assertFalse expects 1 arguments.');
-  var caller = $pick(hook, this.assertFalse.caller);
-  if(value == false) {
-    this.__setTestSuccess__(caller);
-  } else {
-    this.__setTestFail__(caller);
   }
 }
 */
@@ -224,6 +255,7 @@ var SSUnitTestClass = new Class({
   main: function(options) {
     var f = (options) ? options.formatter : (this.formatter() || new SSUnitTest.ResultFormatter.Console),
         rs = this.tests().map($msg('results'));
+    console.log('results', rs);
     if(f.options.supportsInteractive) rs.each(f.output.bind(f));
     this.run();
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
@@ -291,13 +323,12 @@ SSUnitTest.TestCase = new Class({
   initialize: function(options) {
     this.setOptions(this.defaults, options);
     this.__testData = $processTest(this);
-    this.__results = this.prepare();
+    this.__results = this.prepare(this.__testData);
     if(this.options.autoCollect) SSUnitTest.addTest(this);
   },
   
-  prepare: function() {
-    var results = this.__testData;
-    var passed = $reduce(sum, this.__testData.map($acc('success')));
+  prepare: function(results) {
+    var passed = $reduce(sum, results.map($acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
     var message = $lazy();
@@ -487,30 +518,36 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     resultDiv.getElement('.testName').set('text', testResult.name);
     resultDiv.getElement('.doc').set('text', testResult.doc || '');
     this.setStatusColor(resultDiv.getElement('.status'), testResult.success);
-    this.setStatusColor(resultDiv.getElement('.message'), testResult.success);
+    this.setStatusText(resultDiv.getElement('.status'), testResult.success);
+    this.setStatusColor(resultDiv.getElement('.message'), testResult.message);
     set(resultDiv.getElement('.message'), 'text', testResult.message);
 
     return resultDiv;
   },
   
+  setStatusText: function(el, success) {
+    el.set('text', (success) ? 'passed' : 'failed');
+  }.asPromise(),
+  
   setStatusColor: function(el, success) {
-    el.setProperty('color', (success ) ? 'green' : 'red');
+    el.setStyle('color', (success) ? 'green' : 'red');
   }.asPromise(),
 
   output: function(testResult, depth) {
     this.container().grab(this.format(testResult, depth));
     this.parent(testResult, depth);
     if(testResult.count) {
-      this.totals(testResult);
+      this.totals(testResult, depth);
     }
   },
   
-  totals: function(testResult) {
+  totals: function(testResult, depth) {
     var totalsDiv = new Element('div', {
       'class': "SSTestResultTotals"
     });
     totalsDiv.setStyles({
-      borderTop: '1px dashed black'
+      borderTop: '1px dashed black',
+      marginLeft: 10*depth
     });
     
     totalsDiv.set('html', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");

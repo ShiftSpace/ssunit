@@ -13,7 +13,7 @@ var TestTest = new Class({
   ),
   
   subtract: $deftest(
-    "Substract two nubmers",
+    "Subtract two numbers",
     function() { SSUnit.assertEqual(3 - 1, 1); }
   )
 });
