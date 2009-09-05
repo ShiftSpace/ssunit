@@ -216,7 +216,7 @@ SSUnit.ResultsProducer = new Class({
     var subTests = this.tests().map($msg('results'));
     var passed = $reduce(sum, subTests.map($acc('success')));
     var failed = passed.fn(function(n) { return subTests.length - n; });
-    var success = passed.fn(function(n) { return passed == subTests.length; });
+    var success = passed.fn(function(n) { return n == subTests.length; });
     var message = $lazy();
     return {
       name: this.name,
@@ -269,41 +269,41 @@ var SSUnitTest = new SSUnitTestClass()
 SSUnit.Error = new Class({
   Extends: SSException,
   Implements: SSExceptionPrinter,
-  initialize: function(_error, message) {
-    this.parent(_error);
+  initialize: function(error, message) {
+    this.parent(error);
     this.setMessage(message);
   },
-  name: 'SSUnitTest.Error'
+  name: 'SSUnit.Error'
 });
 
 SSUnit.AssertError = new Class({
-  Extends: SSUnitTest.Error,
+  Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
-  name:'SSUnitTest.AssertError'
+  name:'SSUnit.AssertError'
 });
 
 SSUnit.AssertEqualError = new Class({
-  Extends: SSUnitTest.Error,
+  Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
-  name:'SSUnitTest.AssertEqualError'
+  name:'SSUnit.AssertEqualError'
 });
 
 SSUnit.AssertNotEqualError = new Class({
-  Extends: SSUnitTest.Error,
+  Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
-  name:'SSUnitTest.AssertNotEqualError'
+  name:'SSUnit.AssertNotEqualError'
 });
 
 SSUnit.AssertThrowsError = new Class({
-  Extends: SSUnitTest.Error,
+  Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
-  name:'SSUnitTest.AssertThrowsError'
+  name:'SSUnit.AssertThrowsError'
 });
 
 SSUnit.NoFormatter = new Class({
-  Extends: SSUnitTest.Error,
+  Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
-  name:'SSUnitTest.NoFormatter'
+  name:'SSUnit.NoFormatter'
 });
 
 // =======================
@@ -328,7 +328,7 @@ SSUnitTest.TestCase = new Class({
   prepare: function(results) {
     var passed = $reduce(sum, results.map($acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
-    var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
+    var success = passed.fn(function(n) { return (n == results.length) ? 1 : 0; });
     var message = $lazy();
     return {
       name: this.name,
