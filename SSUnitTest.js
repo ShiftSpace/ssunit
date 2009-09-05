@@ -184,7 +184,7 @@ SSUnit.ResultsProducer = new Class({
   name: "SSUnit.ResultsProducer",
   results: function() {
     var subTests = this.tests().map($msg('results'));
-    var passed = $reduce(sum, subTests.map($comp($msg('results'), $acc('success'))));
+    var passed = $reduce(sum, subTests.map($acc('success')));
     var failed = passed.fn(function(n) { return subTests.length - n; });
     var success = passed.fn(function(n) { return passed == subTests.length; });
     var message = $lazy();
