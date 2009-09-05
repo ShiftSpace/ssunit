@@ -68,6 +68,10 @@ function $processTest(test) {
 
 var SSUnit = {};
 
+// =================
+// = Async Support =
+// =================
+
 SSUnit.async = function() {
   var caller = SSUnit.async.caller;
   caller.__async = true;
@@ -79,73 +83,21 @@ SSUnit.endAsync = function(hook) {
   hook.message.realize();
 };
 
-SSUnit.assert = function(a, hook) {
-  var success = (a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
-  var result = (hook) ? hook : (caller && caller.__result);
-  if(result) {
-    var old = result.success.value(false);
-    if(old === null || old === undefined || old == 1) {
-      result.success.setValue(success, false);
-      if(!success) result.message.setValue([a, "is false-y"].join(" ") + ".", false);
-    }
-  } else {
-    return success == 1;
-  }
-};
-
-SSUnit.assertFalse = function(a, hook) {
-  var success = (!a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
-  var result = (hook) ? hook : (caller && caller.__result);
-  if(result) {
-    var old = result.success.value(false);
-    if(old === null || old === undefined || old == 1) {
-      result.success.setValue(success, false);
-      if(!success) result.message.setValue([a, "is truth-y", b].join(" ") + ".", false);
-    }
-  } else {
-    return success == 1;
-  }
-};
-
-SSUnit.assertEqual = function(a, b, hook) {
-  var success = (a == b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
-  var result = (hook) ? hook : (caller && caller.__result);
-  if(result) {
-    var old = result.success.value(false);
-    if(old === null || old === undefined || old == 1) {
-      result.success.setValue(success, false);
-      if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
-    }
-  } else {
-    return success == 1;
-  }
-};
-
-SSUnit.assertNotEqual = function(a, b, hook) {
-  var success = (a != b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
-  var result = (hook) ? hook : (caller && caller.__result);
-  if(result) {
-    var old = result.success.value(false);
-    if(old === null || old === undefined || old == 1) {
-      result.success.setValue(success, false);
-      if(!success) result.message.setValue([a, "equal to", b].join(" ") + ".", false);
-    }
-  } else {
-    return success == 1;
-  }
-};
+// ==============
+// = Assertions =
+// ==============
 
 SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
-  return function () {
-    var hook = $A(arguments).getLast();
-    var args = $A(arguments).head(arity);
-    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
+  return function assertFn() {
+    var args = $A(arguments), hook = (args.length > arity) ? args.getLast() : null;
+    args = $A(arguments).head(arity);
+    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = assertFn.caller;;
     var result = (hook) ? hook : (caller && caller.__result);
     if(result) {
       var old = result.success.value(false);
       if(old === null || old === undefined || old == 1) {
         result.success.setValue(success, false);
-        if(!success) failMessageFn.apply(this, args);
+        if(!success) failMessageFn.apply(this, [result.message].combine(args));
       }
     } else {
       return success == 1;
@@ -153,40 +105,46 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
   }
 }
 
-/*
 SSUnit['assert'] = SSUnit.assertGenerator(
   $identity,
   function(msgp, a) { msgp.setValue([a, "is false-y"].join(" ") + ".", false); },
   1
 );
-*/
 
-/*
-assertThrows: function(exceptionType, fn, args, hook) {
-  if(arguments.length < 2) {
-    throw new SSUnitTest.AssertThrowsError(new Error(), 'assertThrows expects at least 2 arguments.');
-  }
-  if(exceptionType == null) {
-    throw new SSUnitTest.AssertThrowsError(new Error(), 'assertThrows exception type is null.');
-  }
-  
-  // grab the remaining arguments
-  var testArgs = $splat(args);
-  var caller = $pick(hook, this.assertThrows.caller);
-  
-  try {
-    fn.apply(null, testArgs);
-    this.__setTestFail__(caller);
-  }
-  catch(err) {
-    if(err instanceof exceptionType) {
-      this.__setTestSuccess__(caller);
-    } else {
-      this.__setTestFail__(caller);
+SSUnit['assertFalse'] = SSUnit.assertGenerator(
+  $not($identity),
+  function(msgp, a) { msgp.setValue([a, "is truth-y"].join(" ") + ".", false); },
+  1
+);
+
+SSUnit['assertEqual'] = SSUnit.assertGenerator(
+  function(a, b) { return a == b },
+  function(msgp, a, b) { msgp.setValue([a, "is not equal to", b].join(" ") + ".", false); },
+  2
+);
+
+SSUnit['assertNotEqual'] = SSUnit.assertGenerator(
+  function(a, b) { return a != b },
+  function(msgp, a, b) { msgp.setValue([a, "is equal to", b].join(" ") + ".", false); },
+  2
+);
+
+SSUnit['assertThrows'] = SSUnit.assertGenerator(
+  function(type, fn) {
+    try {
+      fn();
+    } catch(err) {
+      return (err instanceof type);
     }
-  }
-}
-*/
+    return false
+  },
+  function(msgp, type) { msgp.setValue(["exception", (new type()).name, "not thrown"].join(" ") + ".", false); },
+  2
+);
+
+// =======================
+// = SSUnit.TestIterator =
+// =======================
 
 SSUnit.TestIterator = new Class({
   name: "SSUnit.TestIterator",
@@ -209,6 +167,9 @@ SSUnit.TestIterator = new Class({
   run: function() { this.tests().each($msg('run')); }
 });
 
+// ==========================
+// = SSUnit.ResultsProducer =
+// ==========================
 
 SSUnit.ResultsProducer = new Class({
   name: "SSUnit.ResultsProducer",
@@ -254,7 +215,6 @@ var SSUnitTestClass = new Class({
   main: function(options) {
     var f = (options) ? options.formatter : (this.formatter() || new SSUnitTest.ResultFormatter.Console),
         rs = this.tests().map($msg('results'));
-    console.log('results', rs);
     if(f.options.supportsInteractive) rs.each(f.output.bind(f));
     this.run();
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
