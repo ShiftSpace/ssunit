@@ -28,7 +28,7 @@ if(!String.repeat) {
   });
 }
 
-function $deftest(doc, fn) {
+function $fixture(doc, fn) {
   fn.__doc = doc;
   fn.__istest = true;
   return fn;
