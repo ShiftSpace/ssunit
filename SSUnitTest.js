@@ -73,36 +73,60 @@ SSUnit.endAsync = function(hook) {
   hook.message.realize();
 };
 
-SSUnit.assertEqual = function(a, b, hook) {
-  var success = (a == b) ? 1 : 0, message = "";
-  var result = (hook) ? hook : SSUnit.assertEqual.caller.__result;
-  var old = result.success.value(false);
-  if(old === null || old === undefined || old == 1) {
-    result.success.setValue(success, false);
-    if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
+SSUnit.assert = function(a, hook) {
+  var success = (a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "is false-y"].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
   }
 };
 
-SSUnit.assertNotEqual = function(a, b, p) {
-  var success = (a != b);
-  var message = "";
-  if(!success) {
-    message = [a, "equal to", b].join(" ") + ".";
-  }
-  var caller = (p) ? p.meta().caller : SSUnit.assertEqual.caller;
-  if(caller)
-  {
-    var lastValue = (p) ? p.value(false) : caller.__result; // if promise get the value, do not apply ops
-    var newValue = {success:success, message: message};
-    if(p) {
-      if(lastValue === null || lastValue === true) {
-        caller.__result.setValue(newValue, false); // set the value to false, do not trigger realized event
-      }
-    } else if(lastValue == null || lastValue === true) {
-      caller.__result = newValue;
+SSUnit.assertFalse = function(a, hook) {
+  var success = (!a) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "is truth-y", b].join(" ") + ".", false);
     }
+  } else {
+    return success == 1;
   }
-  return success;
+};
+
+SSUnit.assertEqual = function(a, b, hook) {
+  var success = (a == b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "not equal to", b].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
+  }
+};
+
+SSUnit.assertNotEqual = function(a, b, hook) {
+  var success = (a != b) ? 1 : 0, message = "", caller = SSUnit.assertEqual.caller;;
+  var result = (hook) ? hook : (caller && caller.__result);
+  if(result) {
+    var old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.setValue(success, false);
+      if(!success) result.message.setValue([a, "equal to", b].join(" ") + ".", false);
+    }
+  } else {
+    return success == 1;
+  }
 };
 
 /*
@@ -128,26 +152,6 @@ assertThrows: function(exceptionType, fn, args, hook) {
     } else {
       this.__setTestFail__(caller);
     }
-  }
-},
-
-assert: function(value, hook) {
-  if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assert expects 1 arguments.');
-  var caller = $pick(hook, this.assert.caller);
-  if(value == true) {
-    this.__setTestSuccess__(caller);
-  } else {
-    this.__setTestFail__(caller);
-  }
-},
-
-assertFalse: function(value, hook) {
-  if(arguments.length < 1) throw new SSUnitTest.AssertError(new Error(), 'assertFalse expects 1 arguments.');
-  var caller = $pick(hook, this.assertFalse.caller);
-  if(value == false) {
-    this.__setTestSuccess__(caller);
-  } else {
-    this.__setTestFail__(caller);
   }
 }
 */
