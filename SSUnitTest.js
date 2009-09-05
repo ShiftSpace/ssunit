@@ -518,7 +518,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     var set = Element.set.asPromise();
     totalsDiv.getElement('.count').set('text', testResult.count);
     set(totalsDiv.getElement('.passed'), 'text', testResult.passed);
-    set(totalsDiv.getElement('.failed'), 'texte', testResult.failed);
+    set(totalsDiv.getElement('.failed'), 'text', testResult.failed);
 
     this.container().grab(totalsDiv);
   }
