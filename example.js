@@ -72,3 +72,9 @@ function demo3() {
   var s = new TestSuite();
   SSUnitTest.main();
 }
+
+function demo3() {
+  var s = new TestSuite();
+  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  SSUnitTest.main({formatter:f});
+}
