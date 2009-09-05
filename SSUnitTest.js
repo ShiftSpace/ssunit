@@ -85,7 +85,7 @@ SSUnit.assertEqual = function(a, b, hook) {
   var old = result.success.value(false);
   if(old === null || old === undefined || old == 1) {
     result.success.setValue(success, false);
-    if(!success) result.message.setValue(["SSUnit.asertEqual failed", a, "not equal to", b].join(" ") + ".", false);
+    if(!success) result.message.setValue(["FAIL", a, "not equal to", b].join(" ") + ".", false);
   }
 };
 
@@ -297,7 +297,7 @@ SSUnitTest.TestCase = new Class({
   results: function() {
     var results = this.__results;
     var passed = $reduce(sum, this.__results.map($acc('success')));
-    var failed = passed.fn(function(n) { console.log('passed', n); return results.length - n; });
+    var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
     var message = success.fn(function(bool) { return (bool) ? "PASS" : "FAIL"; });
     return {
@@ -334,12 +334,15 @@ SSUnitTest.TestCase = new Class({
         success = 0;
       } 
 
-      var v = resultData.success.value(false);
-      if(v === null || v === undefined || v == 1)
+      var old = resultData.success.value(false);
+      resultData.success.setValue(old && success, !fn.__async);
+      
+      var message = resultData.message.value(false);
+      if(message === null || message === undefined)
       {
-        console.log(message, success);
-        resultData.message.setValue(message, !fn.__async);
-        resultData.success.setValue(success, !fn.__async);
+        resultData.message.setValue((old && success) ? "PASS" : "FAIL", !fn.__async);
+      } else if(!fn.__async) {
+        resultData.message.realize();
       }
       
       try {
