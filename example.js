@@ -1,8 +1,21 @@
 window.addEvent('domready', init);
 
-var TestTest = new Class({
+var TestA = new Class({
   Extends: SSUnitTest.TestCase,
-  name: "TestTest",
+  name: "TestA",
+  
+  setup: function() {},
+  tearDown: function() {},
+  
+  add: $deftest(
+    "Add two numbers",
+    function() { SSUnit.assertEqual(1 + 2, 3); }
+  )
+});
+
+var TestB = new Class({
+  Extends: SSUnitTest.TestCase,
+  name: "TestB",
   
   setup: function() {},
   tearDown: function() {},
@@ -24,7 +37,7 @@ var TestSuite = new Class({
   
   initialize: function() {
     this.parent();
-    this.addTest(TestTest);
+    this.addTest(TestB);
   }
 });
 
@@ -55,8 +68,8 @@ function init() {
   console.log("init");
 }
 
-function demo() {
-  var t = new TestTest();
+function demo1() {
+  var t = new TestB();
   var r = t.results();
   var f = new SSUnitTest.ResultFormatter.Console();
   t.run();
@@ -64,17 +77,18 @@ function demo() {
 }
 
 function demo2() {
-  var t = new TestTest();
+  var t = new TestB();
   SSUnitTest.main();
 }
 
 function demo3() {
   var s = new TestSuite();
-  SSUnitTest.main();
+  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  SSUnitTest.main({formatter:f});
 }
 
-function demo3() {
-  var s = new TestSuite();
+function demo4() {
+  var t = new TestA();
   var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
