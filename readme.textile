@@ -1,0 +1,81 @@
+h1. SSUnit
+
+h2. Overview
+
+SSUnit is a unit testing framework built on top of MooTools. It also testing of asynchronous code as well as testing whether the proper exceptions are thrown. It allows you to express unit tests as standard MooTools classes. It comes with two kinds of formatters, one that outputs directly to the console and another than can output to a container in the DOM.
+
+Single tests look like the following:
+
+<pre>
+var TestA = new Class({
+  Extends: SSUnitTest.TestCase,
+  name: "TestA",
+
+  setup: function() {},
+  tearDown: function() {},
+
+  add: $fixture(
+    "Add two numbers",
+    function() { SSUnit.assertEqual(1 + 2, 3); }
+  )
+});
+</pre>
+
+You can build a suite of tests like so:
+
+<pre>
+var TestSuite = new Class({
+  Extends: SSUnitTest.TestSuite,
+  name: "TestSuite",
+
+  initialize: function() {
+    this.parent();
+    this.addTest(TestB);
+  }
+});
+</pre>
+
+When you're ready to run your test you can do the following:
+
+<pre>
+SSUnitTest.main();
+</pre>
+
+SSUnitTest is a singleton that automatically collects tests as you instantiate them or as TestSuite instantiates them.
+
+Asynchronous code can be tested like so:
+
+<pre>
+var TestC = new Class({
+  Extends: SSUnitTest.TestCase,
+  name: "TestC",
+
+  setup: function() {},
+  tearDown: function() {},
+
+  add1: $fixture(
+    "Check adding two remote resources",
+    function() 
+    { 
+      var hook = SSUnit.startAsync();
+      var p1 = get("a");
+      var p2 = get("b");
+      (function(a, b) {
+        SSUnit.assertEqual(a + b, "ac", hook);
+        SSUnit.endAsync(hook);
+      }.asPromise())(p1, p2);
+    }
+  )
+})
+</pre>
+
+You can start a asynchronous test with a call to *SSUnit.startAsync()*. This will generate a hook which can be used to declare that the test has successfully completed. You might notice that no asynchronous calls appear to be made here. This is because SSUnit is built on top of Promises, a MooTools library for simplfying request heavy code as well as enabling a simple form of delayed evaluation. Please look at http://github.com/ShiftSpace/promises/tree/master for a lengthier exposition.
+
+h2. Instructions
+
+SSUnit depends on two other ShiftSpace libraries, FuncTools (http://github.com/ShiftSpace/functools/tree/master) and Promises (http://github.com/ShiftSpace/promises/tree/master). They are submodules of this repository, in order to bring them in run the following after you have cloned this repo from the repo's directory:
+
+<pre>
+> git submodule init
+> git submodule add
+</pre>
