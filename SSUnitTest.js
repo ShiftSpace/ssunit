@@ -46,6 +46,7 @@ function $processTest(test) {
         testData.push({
           name: field,
           fn: origin,
+          doc: origin.__doc,
           success: $lazy(),
           message: $lazy(),
         });
