@@ -74,31 +74,19 @@ SSUnit.async = function() {
   return caller.__result;
 };
 
-SSUnit.endAsync = function(result) {
-  result.success().realize();
-  result.message().realize();
+SSUnit.endAsync = function(hook) {
+  hook.success.realize();
+  hook.message.realize();
 };
 
-SSUnit.assertEqual = function(a, b, p) {
-  var success = (a == b);
-  var message = "";
-  if(!success) {
-    message = ["SSUnit.asertEqual failed", a, "not equal to", b].join(" ") + ".";
+SSUnit.assertEqual = function(a, b, hook) {
+  var success = (a == b) ? 1 : 0, message = "";
+  var result = (hook) ? hook : SSUnit.assertEqual.caller.__result;
+  var old = result.success.value(false);
+  if(old === null || old === undefined || old == 1) {
+    result.success.setValue(success, false);
+    if(!success) result.message.setValue(["SSUnit.asertEqual failed", a, "not equal to", b].join(" ") + ".", false);
   }
-  var caller = (p) ? p.meta().caller : SSUnit.assertEqual.caller;
-  if(caller)
-  {
-    var lastValue = (p) ? p.value(false) : caller.__result; // if promise get the value, do not apply ops
-    var newValue = {success:success, message: message};
-    if(p) {
-      if(lastValue === null || lastValue === true) {
-        caller.__result.setValue(newValue, false); // set the value to false, do not trigger realized event
-      }
-    } else if(lastValue == null || lastValue === true) {
-      caller.__result = newValue;
-    }
-  }
-  return success;
 };
 
 SSUnit.assertNotEqual = function(a, b, p) {
@@ -309,8 +297,8 @@ SSUnitTest.TestCase = new Class({
   results: function() {
     var results = this.__results;
     var passed = $reduce(sum, this.__results.map($acc('success')));
-    var failed = passed.fn(function(n) { return results.length - n; });
-    var success = passed.fn(function(n) { return passed == results.length; });
+    var failed = passed.fn(function(n) { console.log('passed', n); return results.length - n; });
+    var success = passed.fn(function(n) { return (passed == results.length) ? 1 : 0; });
     var message = success.fn(function(bool) { return (bool) ? "PASS" : "FAIL"; });
     return {
       name: this.name,
@@ -329,7 +317,7 @@ SSUnitTest.TestCase = new Class({
   run: function() {
     this.__results.each(function(resultData) {
       var fn = resultData.fn;
-      var failed = false;
+      var success = 1;
       
       try {
         this.setup();
@@ -340,19 +328,19 @@ SSUnitTest.TestCase = new Class({
       fn.__result = resultData;
       try {
         fn();
+        message = "PASS";
       } catch(err) {
-        var message = testData.message;
-        var newmessage = "Uncaught exception: " + SSDescribeException(err);
-        if(message) {
-          message += ", " + newmessage;
-        } else {
-          message = newmessage;
-        }
+        message = "FAIL, uncaught exception: " + SSDescribeException(err);
+        success = 0;
+      } 
+
+      var v = resultData.success.value(false);
+      if(v === null || v === undefined || v == 1)
+      {
+        console.log(message, success);
         resultData.message.setValue(message, !fn.__async);
-        failed = true;
+        resultData.success.setValue(success, !fn.__async);
       }
-      
-      resultData.success.setValue(failed, !fn.__async);
       
       try {
         this.tearDown();
