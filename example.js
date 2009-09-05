@@ -64,5 +64,5 @@ function demo() {
 
 function demo2() {
   var t = new TestTest();
-  
+  SSUnitTest.main();
 }

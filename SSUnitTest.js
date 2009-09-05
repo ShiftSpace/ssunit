@@ -222,11 +222,11 @@ var SSUnitTestClass = new Class({
   formatter: function() { return this.__formatter; },
   
   main: function(options) {
-    if(options != null) {
-      if(options.formatter) this.setFormatter(options.formatter);
-    }
-    SSLog('collect tests!', SSLogForce);
+    var f = (options) ? options.formatter : (this.formatter() || new SSUnitTest.ResultFormatter.Console),
+        rs = this.tests().map($msg('results'));
+    if(f.options.supportsInteractive) rs.each(f.output.bind(f));
     this.run();
+    if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
   }
 });
 var SSUnitTest = new SSUnitTestClass()
