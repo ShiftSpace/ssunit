@@ -494,16 +494,17 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     this.container().grab(this.format(testResult, depth));
     this.parent(testResult, depth);
     if(testResult.count) {
-      this.totals(testResult);
+      this.totals(testResult, depth);
     }
   },
   
-  totals: function(testResult) {
+  totals: function(testResult, depth) {
     var totalsDiv = new Element('div', {
       'class': "SSTestResultTotals"
     });
     totalsDiv.setStyles({
-      borderTop: '1px dashed black'
+      borderTop: '1px dashed black',
+      marginLeft: 10*depth
     });
     
     totalsDiv.set('html', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");
