@@ -332,13 +332,14 @@ SSUnitTest.TestCase = new Class({
       try {
         this.setup();
       } catch(err) {
-        throw new SSUnitTest.Error(err, "Uncaught exception in setup.");
+        console.error("Uncaught exception in setup.", err);
       }
       
       fn.__result = resultData;
       try {
         fn();
       } catch(err) {
+        console.error("Uncaught exception in test", resultData.name, err);
         message = "uncaught exception: " + SSDescribeException(err);
         success = 0;
       }
@@ -352,7 +353,7 @@ SSUnitTest.TestCase = new Class({
       try {
         this.tearDown();
       } catch(err) {
-        throw new SSUnitTest.Error(err, "Uncaught exception in tearDwon.");
+        console.error("Uncaught exception in tearDown", err);
       }
     }.bind(this));
   }
