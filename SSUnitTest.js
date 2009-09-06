@@ -110,9 +110,8 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
           result.message.setValue("", false);
         }
       }
-    } else {
-      return success == 1;
     }
+    return success == 1;
   }
 }
 
