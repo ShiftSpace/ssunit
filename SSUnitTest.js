@@ -316,10 +316,16 @@ SSUnitTest.TestCase = new Class({
     return this.__results;
   },
   
+  onStart: function () {},
+  __onComplete__: function() { this.onComplete() }.asPromise(),
+  onComplete: function() {},
+
   setup: function() {},
   tearDown: function() {},
 
   run: function() {
+    this.onStart();
+    this.__onComplete__.apply(this, this.__testData.map($acc('success')));
     this.__testData.each(function(resultData) {
       var fn = resultData.fn;
       var success = 1;
