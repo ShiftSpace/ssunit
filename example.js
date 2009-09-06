@@ -46,6 +46,9 @@ var TestC = new Class({
   Extends: SSUnitTest.TestCase,
   name: "TestC",
   
+  onStart: function() { console.log("Start TestC"); },
+  onComplete: function() { console.log("End TestC"); },
+  
   setup: function() {},
   tearDown: function() {},
   
