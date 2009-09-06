@@ -97,6 +97,23 @@ var TestC = new Class({
 });
 
 
+var TestD = new Class({
+  Extends: SSUnitTest.TestCase,
+  name: "TestD",
+  
+  setup: function() {},
+  tearDown: function() {},
+  
+  uncaught: $fixture(
+    "An uncaught exception",
+    function() 
+    { 
+      return a + b;
+    }
+  )
+});
+
+
 var TestSuite = new Class({
   Extends: SSUnitTest.TestSuite,
   name: "TestSuite",
@@ -143,6 +160,13 @@ function demo4() {
 
 function demo5() {
   var t = new TestC();
+  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  SSUnitTest.main({formatter:f});
+}
+
+
+function demo6() {
+  var t = new TestD();
   var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
