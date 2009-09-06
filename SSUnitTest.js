@@ -333,12 +333,12 @@ SSUnitTest.TestCase = new Class({
         fn();
       } catch(err) {
         console.error("Uncaught exception in test", resultData.name, err);
-        message = "uncaught exception: " + SSDescribeException(err);
+        resultData.message.setValue(["uncaught exception", err, "in", resultData.name].join(" ")+".", false);
         success = 0;
       }
 
-      var old = resultData.success.value(false);
-      resultData.success.setValue(old && success, !fn.__async);
+      var old = (resultData.success.value(false)) ? 1 : 0;
+      resultData.success.setValue((old && success), !fn.__async);
       
       var message = resultData.message.value(false);
       if(!fn.__async) resultData.message.realize();
