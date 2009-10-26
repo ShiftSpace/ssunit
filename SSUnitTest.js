@@ -10,9 +10,9 @@
 // ==============
 
 var add = function(a, b) { return a + b; }.asPromise();
-var sum = $arity(
-  function(a) { return a; }.asPromise(),
-  function(a, b) { return add(a, (($type(b) == 'array') ? b.first() || 0 : b)); }.asPromise()
+var sum = Function.dispatch(
+  function(a) { return a; },
+  function(a, b) { return add(a, b.first()); }
 );
 
 if(!Array.copy) {
@@ -122,7 +122,7 @@ SSUnit['assert'] = SSUnit.assertGenerator(
 );
 
 SSUnit.assertFalse = SSUnit.assertGenerator(
-  $not($identity),
+  $identity.not(),
   function(msgp, a) { msgp.setValue([a, "is truth-y"].join(" ") + ".", false); },
   1
 );
@@ -174,7 +174,7 @@ SSUnit.TestIterator = new Class({
   },
   
   addTests: function(tests) { tests.each(this.addTests.bind(this)); },
-  run: function() { this.tests().each($msg('run')); }
+  run: function() { this.tests().each(Function.msg('run')); }
 });
 
 // ==========================
@@ -184,8 +184,8 @@ SSUnit.TestIterator = new Class({
 SSUnit.ResultsProducer = new Class({
   name: "SSUnit.ResultsProducer",
   results: function() {
-    var subTests = this.tests().map($msg('results'));
-    var passed = $reduce(sum, subTests.map($acc('success')));
+    var subTests = this.tests().map(Function.msg('results'));
+    var passed = sum.reduce(subTests.map(Function.acc('success')));
     var failed = passed.fn(function(n) { return subTests.length - n; });
     var success = passed.fn(function(n) { return n == subTests.length; });
     var message = $lazy();
@@ -224,7 +224,7 @@ var SSUnitTestClass = new Class({
   
   main: function(options) {
     var f = (options) ? options.formatter : (this.formatter() || new SSUnitTest.ResultFormatter.Console),
-        rs = this.tests().map($msg('results'));
+        rs = this.tests().map(Function.msg('results'));
     if(f.options.supportsInteractive) rs.each(f.output.bind(f));
     this.run();
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
@@ -296,7 +296,7 @@ SSUnitTest.TestCase = new Class({
   },
   
   prepare: function(results) {
-    var passed = $reduce(sum, results.map($acc('success')));
+    var passed = sum.reduce(results.map(Function.acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (n == results.length) ? 1 : 0; });
     var message = $lazy();
@@ -324,7 +324,7 @@ SSUnitTest.TestCase = new Class({
 
   run: function() {
     this.onStart();
-    this.__onComplete__.apply(this, this.__testData.map($acc('success')));
+    this.__onComplete__.apply(this, this.__testData.map(Function.acc('success')));
     this.__testData.each(function(resultData) {
       var fn = resultData.fn;
       var success = 1;
