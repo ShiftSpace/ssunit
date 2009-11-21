@@ -1,5 +1,4 @@
 // ==Builder==
-// @optional
 // @name              SSException
 // @package           System
 // ==/Builder==
