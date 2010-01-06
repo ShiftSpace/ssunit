@@ -229,7 +229,7 @@ var SSUnitTestClass = new Class({
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
   }
 });
-var SSUnitTest = new SSUnitTestClass()
+var SSUnitTest = new SSUnitTestClass();
 
 // ==============
 // = Exceptions =
@@ -237,7 +237,6 @@ var SSUnitTest = new SSUnitTestClass()
 
 SSUnit.Error = new Class({
   Extends: SSException,
-  Implements: SSExceptionPrinter,
   initialize: function(error, message) {
     this.parent(error);
     this.setMessage(message);
@@ -247,31 +246,26 @@ SSUnit.Error = new Class({
 
 SSUnit.AssertError = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.AssertError'
 });
 
 SSUnit.AssertEqualError = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.AssertEqualError'
 });
 
 SSUnit.AssertNotEqualError = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.AssertNotEqualError'
 });
 
 SSUnit.AssertThrowsError = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.AssertThrowsError'
 });
 
 SSUnit.NoFormatter = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.NoFormatter'
 });
 

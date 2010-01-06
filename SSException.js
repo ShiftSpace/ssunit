@@ -3,14 +3,7 @@
 // @package           System
 // ==/Builder==
 
-var SSExceptionPrinter = new Class({
-  toString: function() {
-    return ["["+this.name+"] message: " + this.message(), " fileName:" + this.fileName(), " lineNumber: " + this.lineNumber(), (this.originalError() && this.originalError().message) || 'no original error'].join(", ");
-  }
-});
-
 var SSException = new Class({
-  Implements: SSExceptionPrinter,
   name: 'SSException',
   initialize: function(_error) { this.theError = _error; },
   setMessage: function(msg) { this.__message = msg; },
@@ -28,11 +21,10 @@ function SSDescribeException(_exception) {
 
 function SSError(ns, base, rest) {
   rest = $splat(rest);
-  rest.each(function(name) {
-    ns[name] = new Class({
+  rest.each(function(aname) {
+    ns[aname] = new Class({
       Extends: base,
-      Implements: SSExceptionPrinter,
-      name: name
+      name: aname
     });
   });
 };
