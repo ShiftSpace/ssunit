@@ -24,4 +24,15 @@ function SSDescribeException(_exception) {
   var temp = [];
   for(var prop in _exception) temp.push(prop + ':' + _exception[prop]);
   return "Exception:{ " + temp.join(', ') +" }";
-}
+};
+
+function SSError(ns, base, rest) {
+  rest = $splat(rest);
+  rest.each(function(name) {
+    ns[name] = new Class({
+      Extends: base,
+      Implements: SSExceptionPrinter,
+      name: name
+    });
+  });
+};
