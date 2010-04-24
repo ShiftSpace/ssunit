@@ -127,7 +127,7 @@ SSUnit.assertEqual = SSUnit.assertGenerator(
 );
 
 SSUnit.assertNotEqual = SSUnit.assertGenerator(
-  function(a, b) { return a != b },
+  function(a, b) { return a != b; },
   function(msgp, a, b) { msgp.deliver([a, "is equal to", b].join(" ") + ".", false); },
   2
 );
@@ -203,11 +203,11 @@ var SSUnitTestClass = new Class({
   name: "SSUnitTest",
 
   defaults: {
-    formatter: null,
+    formatter: null
   },
 
   initialize: function(options) {
-    this.setOptions(this.defaults, options)
+    this.setOptions(this.defaults, options);
     this.setFormatter(this.options.formatter);
     this.reset();
   },
@@ -223,7 +223,7 @@ var SSUnitTestClass = new Class({
     if(!f.options.supportsInteractive) rs.each(f.output.bind(f));
   }
 });
-var SSUnitTest = new SSUnitTestClass()
+var SSUnitTest = new SSUnitTestClass();
 
 // ==============
 // = Exceptions =
@@ -381,7 +381,7 @@ SSUnitTest.ResultFormatter = new Class({
   defaults: function() {
     return {
       supportsInteractive: false
-    }
+    };
   },
   
   initialize: function(options) {
@@ -432,7 +432,7 @@ SSUnitTest.ResultFormatter.Console = new Class({
       var totals = {
         count: testResult.count,
         passed: testResult.passed.value(),
-        failed: testResult.failed.value(),
+        failed: testResult.failed.value()
       };
       console.log("  ".repeat(depth) + '------------------------------------------');
       console.log("  ".repeat(depth) + '{count} tests, {passed} passed, {failed} failed.'.substitute(totals));
