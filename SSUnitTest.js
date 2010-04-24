@@ -177,11 +177,11 @@ SSUnit.TestIterator = new Class({
 SSUnit.ResultsProducer = new Class({
   name: "SSUnit.ResultsProducer",
   results: function() {
-    var subTests = this.tests().map(Function.msg('results'));
-    var passed = sum.reduce(subTests.map(Function.acc('success')));
-    var failed = passed.fn(function(n) { return subTests.length - n; });
-    var success = passed.fn(function(n) { return n == subTests.length; });
-    var message = $P();
+    var subTests = this.tests().map(Function.msg('results')),
+        passed = sum.reduce(subTests.map(Function.acc('success'))),
+        failed = passed.fn(function(n) { return subTests.length - n; }),
+        success = passed.fn(function(n) { return n == subTests.length; }),
+        message = $P();
     return {
       name: this.name,
       count: subTests.length,
@@ -289,10 +289,10 @@ SSUnitTest.TestCase = new Class({
   },
   
   prepare: function(results) {
-    var passed = sum.reduce(results.map(Function.acc('success')));
-    var failed = passed.fn(function(n) { return results.length - n; });
-    var success = passed.fn(function(n) { return (n == results.length) ? 1 : 0; });
-    var message = $P();
+    var passed = sum.reduce(results.map(Function.acc('success'))),
+        failed = passed.fn(function(n) { return results.length - n; }),
+        success = passed.fn(function(n) { return (n == results.length) ? 1 : 0; }),
+        message = $P();
     return {
       name: this.name,
       count: results.length,

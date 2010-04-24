@@ -54,11 +54,10 @@ var TestC = new Class({
   
   add1: $fixture(
     "Check adding two remote resources",
-    function() 
-    { 
-      var hook = SSUnit.startAsync();
-      var p1 = get("a");
-      var p2 = get("b");
+    function() { 
+      var hook = SSUnit.startAsync(),
+          p1 = get("a"),
+          p2 = get("b");
       (function(a, b) {
         SSUnit.assertEqual(a + b, "ac", hook);
         SSUnit.endAsync(hook);
@@ -68,11 +67,10 @@ var TestC = new Class({
   
   add2: $fixture(
     "Check adding two remote resources",
-    function() 
-    { 
-      var hook = SSUnit.startAsync();
-      var p1 = get("a");
-      var p2 = get("b");
+    function() { 
+      var hook = SSUnit.startAsync(),
+          p1 = get("a"),
+          p2 = get("b");
       (function(a, b) {
         SSUnit.assertEqual(a + b, "ab", hook);
         SSUnit.endAsync(hook);
@@ -82,11 +80,10 @@ var TestC = new Class({
   
   add3: $fixture(
     "Check adding two remote resources",
-    function() 
-    { 
-      var hook = SSUnit.startAsync();
-      var p1 = get("b");
-      var p2 = get("c");
+    function() { 
+      var hook = SSUnit.startAsync(),
+          p1 = get("b"),
+          p2 = get("c");
       (function(b, c) {
         SSUnit.assertEqual(b + c, "bc", hook);
         SSUnit.endAsync(hook);
@@ -105,10 +102,7 @@ var TestD = new Class({
   
   uncaught: $fixture(
     "An uncaught exception",
-    function() 
-    { 
-      return a + b;
-    }
+    function() { return a + b; }
   )
 });
 
@@ -129,9 +123,9 @@ function init() {
 }
 
 function demo1() {
-  var t = new TestB();
-  var r = t.results();
-  var f = new SSUnitTest.ResultFormatter.Console();
+  var t = new TestB(),
+      r = t.results(),
+      f = new SSUnitTest.ResultFormatter.Console();
   t.run();
   f.output(r);
 }
@@ -144,28 +138,28 @@ function demo2() {
 
 
 function demo3() {
-  var s = new TestSuite();
-  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  var s = new TestSuite(),
+      f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
 
 
 function demo4() {
-  var t = new TestA();
-  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  var t = new TestA(),
+      f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
 
 
 function demo5() {
-  var t = new TestC();
-  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  var t = new TestC(),
+      f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
 
 
 function demo6() {
-  var t = new TestD();
-  var f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
+  var t = new TestD(),
+      f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
