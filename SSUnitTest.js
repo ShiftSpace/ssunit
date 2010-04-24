@@ -2,7 +2,7 @@
 // = Utilities =
 // ==============
 
-var add = function(a, b) { return a + b; }.asPromise();
+var add = function(a, b) { return a + b; }.future();
 var sum = Function.dispatch(
   function(a) { return a; },
   function(a, b) { return add(a, b.first()); }
@@ -36,7 +36,7 @@ function $fixture(doc, fn) {
 
 function $doc(fn) { return fn.__doc; };
 function $name(fn) { return fn.__name; };
-function $origin(fn) { return fn._origin };
+function $origin(fn) { return fn._origin; };
 
 function $processTest(test) {
   var testData = [];
@@ -53,8 +53,8 @@ function $processTest(test) {
           name: field,
           fn: origin,
           doc: origin.__doc,
-          success: $lazy(),
-          message: $lazy(),
+          success: $P(),
+          message: $P()
         });
       }
     }
@@ -81,7 +81,7 @@ SSUnit.startAsync = function() {
 SSUnit.endAsync = function(hook) {
   hook.success.realize();
   hook.message.realize();
-}.asPromise();
+}.future();
 
 // ==============
 // = Assertions =
@@ -96,39 +96,39 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
     if(result) {
       var old = result.success.value(false);
       if(old === null || old === undefined || old == 1) {
-        result.success.setValue(success, false);
+        result.success.deliver(success, false);
         if(!success) {
           failMessageFn.apply(this, [result.message].combine(args));
         } else {
-          result.message.setValue("", false);
+          result.message.deliver("", false);
         }
       }
     }
     return success == 1;
-  }
-}
+  };
+};
 
 SSUnit['assert'] = SSUnit.assertGenerator(
   $identity,
-  function(msgp, a) { msgp.setValue([a, "is false-y"].join(" ") + ".", false); },
+  function(msgp, a) { msgp.deliver([a, "is false-y"].join(" ") + ".", false); },
   1
 );
 
 SSUnit.assertFalse = SSUnit.assertGenerator(
   $identity.not(),
-  function(msgp, a) { msgp.setValue([a, "is truth-y"].join(" ") + ".", false); },
+  function(msgp, a) { msgp.deliver([a, "is truth-y"].join(" ") + ".", false); },
   1
 );
 
 SSUnit.assertEqual = SSUnit.assertGenerator(
-  function(a, b) { return a == b },
-  function(msgp, a, b) { msgp.setValue([a, "is not equal to", b].join(" ") + ".", false); },
+  function(a, b) { return a == b; },
+  function(msgp, a, b) { msgp.deliver([a, "is not equal to", b].join(" ") + ".", false); },
   2
 );
 
 SSUnit.assertNotEqual = SSUnit.assertGenerator(
   function(a, b) { return a != b },
-  function(msgp, a, b) { msgp.setValue([a, "is equal to", b].join(" ") + ".", false); },
+  function(msgp, a, b) { msgp.deliver([a, "is equal to", b].join(" ") + ".", false); },
   2
 );
 
@@ -141,7 +141,7 @@ SSUnit.assertThrows = SSUnit.assertGenerator(
     }
     return false;
   },
-  function(msgp, type) { msgp.setValue(["exception", (new type()).name || "Error", "not thrown"].join(" ") + ".", false); },
+  function(msgp, type) { msgp.deliver(["exception", (new type()).name || "Error", "not thrown"].join(" ") + ".", false); },
   2
 );
 
@@ -181,7 +181,7 @@ SSUnit.ResultsProducer = new Class({
     var passed = sum.reduce(subTests.map(Function.acc('success')));
     var failed = passed.fn(function(n) { return subTests.length - n; });
     var success = passed.fn(function(n) { return n == subTests.length; });
-    var message = $lazy();
+    var message = $P();
     return {
       name: this.name,
       count: subTests.length,
@@ -190,7 +190,7 @@ SSUnit.ResultsProducer = new Class({
       failed: failed,
       message: message,
       subTests: subTests
-    }
+    };
   }
 });
 
@@ -292,7 +292,7 @@ SSUnitTest.TestCase = new Class({
     var passed = sum.reduce(results.map(Function.acc('success')));
     var failed = passed.fn(function(n) { return results.length - n; });
     var success = passed.fn(function(n) { return (n == results.length) ? 1 : 0; });
-    var message = $lazy();
+    var message = $P();
     return {
       name: this.name,
       count: results.length,
@@ -301,7 +301,7 @@ SSUnitTest.TestCase = new Class({
       failed: failed,
       message: message,
       subTests: results
-    }
+    };
   },
   
   results: function() {
@@ -309,7 +309,7 @@ SSUnitTest.TestCase = new Class({
   },
   
   onStart: function () {},
-  __onComplete__: function() { this.onComplete() }.asPromise(),
+  __onComplete__: function() { this.onComplete(); }.future(),
   onComplete: function() {},
 
   setup: function() {},
@@ -333,12 +333,12 @@ SSUnitTest.TestCase = new Class({
         fn();
       } catch(err) {
         console.error("Uncaught exception in test", resultData.name, err);
-        resultData.message.setValue(["uncaught exception", err, "in", resultData.name].join(" ")+".", false);
+        resultData.message.deliver(["uncaught exception", err, "in", resultData.name].join(" ")+".", false);
         success = 0;
       }
 
       var old = (resultData.success.value(false)) ? 1 : 0;
-      resultData.success.setValue((old && success), !fn.__async);
+      resultData.success.deliver((old && success), !fn.__async);
       
       var message = resultData.message.value(false);
       if(!fn.__async) resultData.message.realize();
@@ -469,7 +469,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     
     resultDiv.set('html', '<span><b class="testName"></b></span> <span class="doc"></span> <span class="status" style="color:green;"></span> <span class="message" style="color:green"></span> ...');
     
-    var set = Element.set.asPromise();
+    var set = Element.set.future();
     resultDiv.getElement('.testName').set('text', testResult.name);
     resultDiv.getElement('.doc').set('text', testResult.doc || '');
     this.setStatusColor(resultDiv.getElement('.status'), testResult.success);
@@ -482,11 +482,11 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
   
   setStatusText: function(el, success) {
     el.set('text', (success) ? 'passed' : 'failed');
-  }.asPromise(),
+  }.future(),
   
   setStatusColor: function(el, success) {
     el.setStyle('color', (success) ? 'green' : 'red');
-  }.asPromise(),
+  }.future(),
   
   output: function(testResult, depth) {
     this.container().grab(this.format(testResult, depth));
@@ -507,7 +507,7 @@ SSUnitTest.ResultFormatter.BasicDOM = new Class({
     
     totalsDiv.set('html', "Total test: <span class='count'></span>, Passed: <span class='passed'></span>, Failed: <span class='failed'></span>");
     
-    var set = Element.set.asPromise();
+    var set = Element.set.future();
     totalsDiv.getElement('.count').set('text', testResult.count);
     set(totalsDiv.getElement('.passed'), 'text', testResult.passed);
     set(totalsDiv.getElement('.failed'), 'text', testResult.failed);

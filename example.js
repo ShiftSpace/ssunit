@@ -6,7 +6,7 @@ var get = function(rsrc)
   return new Request({
     url: 'data/'+rsrc+'.json'
   });
-}.decorate(promise)
+}.future();
 
 
 var TestA = new Class({
@@ -62,7 +62,7 @@ var TestC = new Class({
       (function(a, b) {
         SSUnit.assertEqual(a + b, "ac", hook);
         SSUnit.endAsync(hook);
-      }.asPromise())(p1, p2);
+      }.future())(p1, p2);
     }
   ),
   
@@ -76,7 +76,7 @@ var TestC = new Class({
       (function(a, b) {
         SSUnit.assertEqual(a + b, "ab", hook);
         SSUnit.endAsync(hook);
-      }.asPromise())(p1, p2);
+      }.future())(p1, p2);
     }
   ),
   
@@ -90,10 +90,9 @@ var TestC = new Class({
       (function(b, c) {
         SSUnit.assertEqual(b + c, "bc", hook);
         SSUnit.endAsync(hook);
-      }.asPromise())(p1, p2);
+      }.future())(p1, p2);
     }
   )
-  
 });
 
 
