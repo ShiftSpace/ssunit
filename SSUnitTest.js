@@ -89,10 +89,10 @@ SSUnit.endAsync = function(hook) {
 
 SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
   return function assertFn() {
-    var args = $A(arguments), hook = (args.length > arity) ? args.getLast() : null;
-    args = $A(arguments).head(arity);
-    var success = (testFn.apply(this, args)) ? 1 : 0, message = "", caller = assertFn.caller;
-    var result = (hook) ? hook : (caller && caller.__result);
+    var args = $A(arguments).head(arity),
+        hook = (arguments.length > arity) ? $A(arguments).getLast() : null,
+        success = (testFn.apply(this, args)) ? 1 : 0, caller = assertFn.caller,
+        result = (hook) ? hook : (caller && caller.__result);
     if(result) {
       var old = result.success.value(false);
       if(old === null || old === undefined || old == 1) {
