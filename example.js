@@ -1,14 +1,6 @@
 window.addEvent('domready', init);
 
 
-var get = function(rsrc) 
-{
-  return new Request({
-    url: 'data/'+rsrc+'.json'
-  });
-}.future();
-
-
 var TestA = new Class({
   Extends: SSUnitTest.TestCase,
   name: "TestA",
@@ -46,57 +38,6 @@ var TestC = new Class({
   Extends: SSUnitTest.TestCase,
   name: "TestC",
   
-  onStart: function() { console.log("Start TestC"); },
-  onComplete: function() { console.log("End TestC"); },
-  
-  setup: function() {},
-  tearDown: function() {},
-  
-  add1: $fixture(
-    "Check adding two remote resources",
-    function() { 
-      var hook = SSUnit.startAsync(),
-          p1 = get("a"),
-          p2 = get("b");
-      (function(a, b) {
-        SSUnit.assertEqual(a + b, "ac", hook);
-        SSUnit.endAsync(hook);
-      }.future())(p1, p2);
-    }
-  ),
-  
-  add2: $fixture(
-    "Check adding two remote resources",
-    function() { 
-      var hook = SSUnit.startAsync(),
-          p1 = get("a"),
-          p2 = get("b");
-      (function(a, b) {
-        SSUnit.assertEqual(a + b, "ab", hook);
-        SSUnit.endAsync(hook);
-      }.future())(p1, p2);
-    }
-  ),
-  
-  add3: $fixture(
-    "Check adding two remote resources",
-    function() { 
-      var hook = SSUnit.startAsync(),
-          p1 = get("b"),
-          p2 = get("c");
-      (function(b, c) {
-        SSUnit.assertEqual(b + c, "bc", hook);
-        SSUnit.endAsync(hook);
-      }.future())(p1, p2);
-    }
-  )
-});
-
-
-var TestD = new Class({
-  Extends: SSUnitTest.TestCase,
-  name: "TestD",
-  
   setup: function() {},
   tearDown: function() {},
   
@@ -122,6 +63,7 @@ function init() {
   console.log("init");
 }
 
+// check console output
 function demo1() {
   var t = new TestB(),
       r = t.results(),
@@ -130,36 +72,29 @@ function demo1() {
   f.output(r);
 }
 
-
+// check test suites
 function demo2() {
   var t = new TestB();
   SSUnitTest.main();
 }
 
-
+// check dom formatter
 function demo3() {
   var s = new TestSuite(),
       f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
 
-
+// check dom formatter
 function demo4() {
   var t = new TestA(),
       f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }
 
-
+// Check uncaught exceptions
 function demo5() {
   var t = new TestC(),
-      f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
-  SSUnitTest.main({formatter:f});
-}
-
-
-function demo6() {
-  var t = new TestD(),
       f = new SSUnitTest.ResultFormatter.BasicDOM({container:$('results')});
   SSUnitTest.main({formatter:f});
 }

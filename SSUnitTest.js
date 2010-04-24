@@ -68,65 +68,40 @@ function $processTest(test) {
 
 var SSUnit = {};
 
-// =================
-// = Async Support =
-// =================
-
-SSUnit.startAsync = function() {
-  var caller = SSUnit.startAsync.caller;
-  caller.__async = true;
-  return caller.__result;
-};
-
-SSUnit.endAsync = function(hook) {
-  hook.success.realize();
-  hook.message.realize();
-}.future();
-
 // ==============
 // = Assertions =
 // ==============
 
 SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
   return function assertFn() {
-    var args = $A(arguments).head(arity),
-        hook = (arguments.length > arity) ? $A(arguments).getLast() : null,
-        success = (testFn.apply(this, args)) ? 1 : 0,
-        result = (hook) ? hook : assertFn.caller.__result,
-        old = result.success.value(false);
-    if(old === null || old === undefined || old == 1) {
-      result.success.deliver(success, false);
-      if(!success) {
-        failMessageFn.apply(this, [result.message].combine(args));
-      } else {
-        result.message.deliver("", false);
-      }
+    var args = $A(arguments).head(arity);
+    if(!testFn.apply(this, args)) {
+      throw new SSUnit.AssertError(new Error(), failMessageFn.apply(this, args));
     }
-    return success == 1;
   };
 };
 
 SSUnit['assert'] = SSUnit.assertGenerator(
   $identity,
-  function(msgp, a) { msgp.deliver([a, "is false-y"].join(" ") + ".", false); },
+  function(a) { return [a, "is false-y"].join(" ") + "."; },
   1
 );
 
 SSUnit.assertFalse = SSUnit.assertGenerator(
   $identity.not(),
-  function(msgp, a) { msgp.deliver([a, "is truth-y"].join(" ") + ".", false); },
+  function(a) { return [a, "is truth-y"].join(" ") + "."; },
   1
 );
 
 SSUnit.assertEqual = SSUnit.assertGenerator(
   function(a, b) { return a == b; },
-  function(msgp, a, b) { msgp.deliver([a, "is not equal to", b].join(" ") + ".", false); },
+  function(a, b) { return [a, "is not equal to", b].join(" ") + "."; },
   2
 );
 
 SSUnit.assertNotEqual = SSUnit.assertGenerator(
   function(a, b) { return a != b; },
-  function(msgp, a, b) { msgp.deliver([a, "is equal to", b].join(" ") + ".", false); },
+  function(a, b) { return [a, "is equal to", b].join(" ") + "."; },
   2
 );
 
@@ -243,24 +218,6 @@ SSUnit.AssertError = new Class({
   name:'SSUnit.AssertError'
 });
 
-SSUnit.AssertEqualError = new Class({
-  Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
-  name:'SSUnit.AssertEqualError'
-});
-
-SSUnit.AssertNotEqualError = new Class({
-  Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
-  name:'SSUnit.AssertNotEqualError'
-});
-
-SSUnit.AssertThrowsError = new Class({
-  Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
-  name:'SSUnit.AssertThrowsError'
-});
-
 SSUnit.NoFormatter = new Class({
   Extends: SSUnit.Error,
   Implements: SSExceptionPrinter,
@@ -318,7 +275,8 @@ SSUnitTest.TestCase = new Class({
     this.__onComplete__.apply(this, this.__testData.map(Function.acc('success')));
     this.__testData.each(function(resultData) {
       var fn = resultData.fn,
-          success = 1;
+          success = 1,
+          message;
       
       try {
         this.setup();
@@ -329,17 +287,17 @@ SSUnitTest.TestCase = new Class({
       fn.__result = resultData;
       try {
         fn();
+      } catch(err if err instanceof SSUnit.AssertError) {
+        message = err.message();
+        success = 0;
       } catch(err) {
         console.error("Uncaught exception in test", resultData.name, err);
-        resultData.message.deliver(["uncaught exception", err, "in", resultData.name].join(" ")+".", false);
+        message = ["uncaught exception", err, "in", resultData.name].join(" ")+".";
         success = 0;
       }
 
-      var old = (resultData.success.value(false)) ? 1 : 0;
-      resultData.success.deliver((old && success), !fn.__async);
-      
-      var message = resultData.message.value(false);
-      if(!fn.__async) resultData.message.realize();
+      resultData.success.deliver(success);
+      resultData.message.deliver(message);
       
       try {
         this.tearDown();
