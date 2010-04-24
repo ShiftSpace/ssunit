@@ -91,17 +91,15 @@ SSUnit.assertGenerator = function(testFn, failMessageFn, arity) {
   return function assertFn() {
     var args = $A(arguments).head(arity),
         hook = (arguments.length > arity) ? $A(arguments).getLast() : null,
-        success = (testFn.apply(this, args)) ? 1 : 0, caller = assertFn.caller,
-        result = (hook) ? hook : (caller && caller.__result);
-    if(result) {
-      var old = result.success.value(false);
-      if(old === null || old === undefined || old == 1) {
-        result.success.deliver(success, false);
-        if(!success) {
-          failMessageFn.apply(this, [result.message].combine(args));
-        } else {
-          result.message.deliver("", false);
-        }
+        success = (testFn.apply(this, args)) ? 1 : 0,
+        result = (hook) ? hook : assertFn.caller.__result,
+        old = result.success.value(false);
+    if(old === null || old === undefined || old == 1) {
+      result.success.deliver(success, false);
+      if(!success) {
+        failMessageFn.apply(this, [result.message].combine(args));
+      } else {
+        result.message.deliver("", false);
       }
     }
     return success == 1;
