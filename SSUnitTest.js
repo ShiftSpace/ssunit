@@ -1,3 +1,9 @@
+// ==Builder==
+// @name              SSUnitTest
+// @package           Testing
+// @dependencies      SSException
+// ==/Builder==
+
 // ==============
 // = Utilities =
 // ==============
@@ -204,23 +210,20 @@ var SSUnitTest = new SSUnitTestClass();
 
 SSUnit.Error = new Class({
   Extends: SSException,
-  Implements: SSExceptionPrinter,
   initialize: function(error, message) {
     this.parent(error);
-    this.setMessage(message);
+    this.message = message;
   },
   name: 'SSUnit.Error'
 });
 
 SSUnit.AssertError = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.AssertError'
 });
 
 SSUnit.NoFormatter = new Class({
   Extends: SSUnit.Error,
-  Implements: SSExceptionPrinter,
   name:'SSUnit.NoFormatter'
 });
 
@@ -288,7 +291,7 @@ SSUnitTest.TestCase = new Class({
       try {
         fn();
       } catch(err if err instanceof SSUnit.AssertError) {
-        message = err.message();
+        message = err.message;
         success = 0;
       } catch(err) {
         console.error("Uncaught exception in test", resultData.name, err);

@@ -1,22 +1,28 @@
-var SSExceptionPrinter = new Class({
-  toString: function() {
-    return ["["+this.name+"] message: " + this.message(), " fileName:" + this.fileName(), " lineNumber: " + this.lineNumber(), (this.originalError() && this.originalError().message) || 'no original error'].join(", ");
-  }
-});
+// ==Builder==
+// @name              SSException
+// @package           System
+// ==/Builder==
 
 var SSException = new Class({
-  Implements: SSExceptionPrinter,
   name: 'SSException',
-  initialize: function(_error) { this.theError = _error; },
-  setMessage: function(msg) { this.__message = msg; },
-  message: function() { return this.__message || (this.theError && this.theError.message) || 'n/a'; },
-  fileName: function() { return (this.theError && this.theError.fileName) || 'n/a'; },
-  lineNumber: function() { return (this.theError && this.theError.lineNumber) || 'n/a'; },
+  initialize: function(err, message) {
+    this.err = err;
+    this.message = message;
+  },
   originalError: function() { return this.theError; }
 });
+SSException.prototype.toString = function() {
+  return "[SSException message:{message} fileName:{fileName} lineNumber:{lineNumber}]".substitute(
+    $merge({lineNumber: "n/a", fileName: "n/a"}, this.err, {message: this.message})
+  );
+};
 
-function SSDescribeException(_exception) {
-  var temp = [];
-  for(var prop in _exception) temp.push(prop + ':' + _exception[prop]);
-  return "Exception:{ " + temp.join(', ') +" }";
-}
+function SSError(ns, base, rest) {
+  rest = $splat(rest);
+  rest.each(function(aname) {
+    ns[aname] = new Class({
+      Extends: base,
+      name: aname
+    });
+  });
+};
