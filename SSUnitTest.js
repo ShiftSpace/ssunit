@@ -319,8 +319,8 @@ SSUnitTest.TestCase = new Class({
     this.onStart();
     this.__onComplete__.apply(this, this.__testData.map(Function.acc('success')));
     this.__testData.each(function(resultData) {
-      var fn = resultData.fn;
-      var success = 1;
+      var fn = resultData.fn,
+          success = 1;
       
       try {
         this.setup();
